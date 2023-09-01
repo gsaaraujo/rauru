@@ -4,6 +4,9 @@
   "main": "index.js",
   "author": "Gabriel <gabriel.houth@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "aa": "yarn tsc --noEmit && yarn eslint ."
+  },
   "devDependencies": {
     "@types/node": "^20.5.7",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
