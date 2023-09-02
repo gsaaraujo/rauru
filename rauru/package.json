@@ -5,7 +5,7 @@
   "author": "Gabriel <gabriel.houth@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "aa": "yarn tsc --noEmit && yarn eslint ."
+    "scan": "yarn tsc --noEmit && yarn eslint ."
   },
   "devDependencies": {
     "@types/node": "^20.5.7",
