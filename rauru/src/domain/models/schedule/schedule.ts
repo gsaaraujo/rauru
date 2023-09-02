@@ -1,7 +1,8 @@
 import { Entity } from '@shared/helpers/entity';
-import { TimeSlot, TimeSlotStatus } from '@domain/models/time-slot';
-import { Either, left, right } from '@shared/helpers/either';
 import { BaseError } from '@shared/helpers/base-error';
+
+import { Either, left, right } from '@shared/helpers/either';
+import { TimeSlot, TimeSlotStatus } from '@domain/models/time-slot';
 import { TimeSlotNotFoundError } from '@domain/errors/time-slot-not-found-error';
 
 export type ScheduleProps = {

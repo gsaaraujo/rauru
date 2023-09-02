@@ -11,8 +11,8 @@ export type TimeSlotProps = {
 };
 
 export class TimeSlot extends ValueObject<TimeSlotProps> {
-  static create(props: TimeSlotProps): TimeSlot {
-    return new TimeSlot(props);
+  static create(props: Omit<TimeSlotProps, 'status'>): TimeSlot {
+    return new TimeSlot({ date: props.date, status: TimeSlotStatus.AVAILABLE });
   }
 
   static reconstitute(props: TimeSlotProps): TimeSlot {
