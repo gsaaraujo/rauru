@@ -27,7 +27,14 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
     const appointment = Appointment.create({});
 
     const schedule: Schedule = await this.scheduleRepository.findOneByDoctorId(input.doctorId);
-    const isTimeSlotAvailable: boolean = schedule.isTimeSlotAvailable(input.timeSlot);
+    const isTimeSlotAvailableOrError: Either<BaseError, boolean> = schedule.isTimeSlotAvailable(input.timeSlot);
+
+    if (isTimeSlotAvailableOrError.isLeft()) {
+      const error = isTimeSlotAvailableOrError.value;
+      return left(error);
+    }
+
+    const isTimeSlotAvailable: boolean = isTimeSlotAvailableOrError.value;
 
     if (!isTimeSlotAvailable) {
       const error = new TimeSlotAlreadyBookedError('This time slot is already booked. Choose another one.');
