@@ -3,7 +3,9 @@ import { BaseError } from '@shared/helpers/base-error';
 import { Either, left, right } from '@shared/helpers/either';
 
 import { Schedule } from '@domain/models/schedule/schedule';
+import { PatientGateway } from '@domain/gateways/patient-gateway';
 import { Appointment } from '@domain/models/appointment/appointment';
+import { PatientNotFoundError } from '@domain/errors/patient-not-found-error';
 import { ScheduleNotFoundError } from '@domain/errors/schedule-not-found-error';
 import { ScheduleRepository } from '@domain/models/schedule/schedule-repository';
 import { AppointmentRepository } from '@domain/models/appointment/appointment-repository';
@@ -21,11 +23,19 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
   public constructor(
     private readonly scheduleRepository: ScheduleRepository,
     private readonly appointmentRepository: AppointmentRepository,
+    private readonly patientGateway: PatientGateway,
   ) {
     super();
   }
 
   public async execute(input: BookAnAppointmentInput): Promise<Either<BaseError, void>> {
+    const patientExists: boolean = await this.patientGateway.exists(input.patientId);
+
+    if (!patientExists) {
+      const error: BaseError = new PatientNotFoundError('No patient was found.');
+      return left(error);
+    }
+
     const scheduleFound: Schedule | null = await this.scheduleRepository.findOneByDoctorId(input.doctorId);
 
     if (!scheduleFound) {
