@@ -2,6 +2,7 @@ import { BaseError } from '@shared/helpers/base-error';
 import { ValueObject } from '@shared/helpers/value-object';
 import { Either, left, right } from '@shared/helpers/either';
 
+import { InvalidPropertyError } from '@domain/errors/invalid-property-error';
 import { TimeSlotCannotBeInThePastError } from '@domain/errors/time-slot-cannot-be-in-the-past-error';
 
 export enum TimeSlotStatus {
@@ -16,6 +17,11 @@ export type TimeSlotProps = {
 
 export class TimeSlot extends ValueObject<TimeSlotProps> {
   static create(props: Omit<TimeSlotProps, 'status'>): Either<BaseError, TimeSlot> {
+    if (!(props.date instanceof Date)) {
+      const error = new InvalidPropertyError('Date must be Date and non-empty');
+      return left(error);
+    }
+
     const currentDate = new Date();
 
     if (props.date.getTime() < currentDate.getTime()) {
