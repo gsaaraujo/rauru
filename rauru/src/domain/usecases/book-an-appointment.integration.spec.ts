@@ -31,7 +31,7 @@ describe('book-an-appointment', () => {
         doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
         timeSlots: [
           TimeSlot.reconstitute({
-            date: new Date('2023-08-20T14:00:00Z'),
+            date: new Date('2100-08-20T14:00:00Z'),
             status: TimeSlotStatus.AVAILABLE,
           }),
         ],
@@ -41,7 +41,8 @@ describe('book-an-appointment', () => {
 
     const sut: Either<BaseError, void> = await bookAnAppointment.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
-      timeSlot: new Date('2023-08-20T14:00:00Z'),
+      patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
+      timeSlot: new Date('2100-08-20T14:00:00Z'),
     });
 
     expect(sut.isRight()).toBeTruthy();
@@ -56,7 +57,7 @@ describe('book-an-appointment', () => {
         doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
         timeSlots: [
           TimeSlot.reconstitute({
-            date: new Date('2023-08-20T14:00:00Z'),
+            date: new Date('2100-08-20T14:00:00Z'),
             status: TimeSlotStatus.UNAVAILABLE,
           }),
         ],
@@ -66,7 +67,8 @@ describe('book-an-appointment', () => {
 
     const sut: Either<BaseError, void> = await bookAnAppointment.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
-      timeSlot: new Date('2023-08-20T14:00:00Z'),
+      patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
+      timeSlot: new Date('2100-08-20T14:00:00Z'),
     });
 
     expect(sut.isLeft()).toBeTruthy();
@@ -86,7 +88,8 @@ describe('book-an-appointment', () => {
 
     const sut: Either<BaseError, void> = await bookAnAppointment.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
-      timeSlot: new Date('2023-08-20T14:00:00Z'),
+      patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
+      timeSlot: new Date('2100-08-20T14:00:00Z'),
     });
 
     expect(sut.isLeft()).toBeTruthy();

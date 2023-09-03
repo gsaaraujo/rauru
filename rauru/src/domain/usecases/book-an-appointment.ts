@@ -10,6 +10,7 @@ import { Schedule } from '@domain/models/schedule/schedule';
 
 export type BookAnAppointmentInput = {
   doctorId: string;
+  patientId: string;
   timeSlot: Date;
 };
 
@@ -24,13 +25,11 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
   }
 
   public async execute(input: BookAnAppointmentInput): Promise<Either<BaseError, void>> {
-    const appointment = Appointment.create({});
-
     const schedule: Schedule = await this.scheduleRepository.findOneByDoctorId(input.doctorId);
     const isTimeSlotAvailableOrError: Either<BaseError, boolean> = schedule.isTimeSlotAvailable(input.timeSlot);
 
     if (isTimeSlotAvailableOrError.isLeft()) {
-      const error = isTimeSlotAvailableOrError.value;
+      const error: BaseError = isTimeSlotAvailableOrError.value;
       return left(error);
     }
 
@@ -41,6 +40,18 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
       return left(error);
     }
 
+    const appointmentOrError: Either<BaseError, Appointment> = Appointment.create({
+      doctorId: input.doctorId,
+      patientId: input.patientId,
+      date: input.timeSlot,
+    });
+
+    if (appointmentOrError.isLeft()) {
+      const error: BaseError = appointmentOrError.value;
+      return left(error);
+    }
+
+    const appointment: Appointment = appointmentOrError.value;
     await this.appointmentRepository.create(appointment);
     return right(undefined);
   }
