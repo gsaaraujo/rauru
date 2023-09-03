@@ -2,11 +2,12 @@ import { Usecase } from '@shared/helpers/usecase';
 import { BaseError } from '@shared/helpers/base-error';
 import { Either, left, right } from '@shared/helpers/either';
 
+import { Schedule } from '@domain/models/schedule/schedule';
 import { Appointment } from '@domain/models/appointment/appointment';
+import { ScheduleNotFoundError } from '@domain/errors/schedule-not-found-error';
+import { ScheduleRepository } from '@domain/models/schedule/schedule-repository';
 import { AppointmentRepository } from '@domain/models/appointment/appointment-repository';
 import { TimeSlotAlreadyBookedError } from '@domain/errors/time-slot-already-booked-error';
-import { ScheduleRepository } from '@domain/models/schedule/schedule-repository';
-import { Schedule } from '@domain/models/schedule/schedule';
 
 export type BookAnAppointmentInput = {
   doctorId: string;
@@ -25,8 +26,14 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
   }
 
   public async execute(input: BookAnAppointmentInput): Promise<Either<BaseError, void>> {
-    const schedule: Schedule = await this.scheduleRepository.findOneByDoctorId(input.doctorId);
-    const isTimeSlotAvailableOrError: Either<BaseError, boolean> = schedule.isTimeSlotAvailable(input.timeSlot);
+    const scheduleFound: Schedule | null = await this.scheduleRepository.findOneByDoctorId(input.doctorId);
+
+    if (!scheduleFound) {
+      const error: BaseError = new ScheduleNotFoundError('No schedule was found for this doctor.');
+      return left(error);
+    }
+
+    const isTimeSlotAvailableOrError: Either<BaseError, boolean> = scheduleFound.isTimeSlotAvailable(input.timeSlot);
 
     if (isTimeSlotAvailableOrError.isLeft()) {
       const error: BaseError = isTimeSlotAvailableOrError.value;

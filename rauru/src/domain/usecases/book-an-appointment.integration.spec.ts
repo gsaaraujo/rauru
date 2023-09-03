@@ -6,6 +6,7 @@ import { BaseError } from '@shared/helpers/base-error';
 import { Schedule } from '@domain/models/schedule/schedule';
 import { TimeSlot, TimeSlotStatus } from '@domain/models/time-slot';
 import { BookAnAppointment } from '@domain/usecases/book-an-appointment';
+import { ScheduleNotFoundError } from '@domain/errors/schedule-not-found-error';
 import { TimeSlotNotFoundError } from '@domain/errors/time-slot-not-found-error';
 import { TimeSlotAlreadyBookedError } from '@domain/errors/time-slot-already-booked-error';
 
@@ -94,5 +95,18 @@ describe('book-an-appointment', () => {
 
     expect(sut.isLeft()).toBeTruthy();
     expect(sut.value).toStrictEqual(output);
+  });
+
+  it('should fail if no schedule was found', async () => {
+    const error: BaseError = new ScheduleNotFoundError('No schedule was found for this doctor.');
+
+    const sut: Either<BaseError, void> = await bookAnAppointment.execute({
+      doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
+      patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
+      timeSlot: new Date('2100-08-20T14:00:00Z'),
+    });
+
+    expect(sut.isLeft()).toBeTruthy();
+    expect(sut.value).toStrictEqual(error);
   });
 });
