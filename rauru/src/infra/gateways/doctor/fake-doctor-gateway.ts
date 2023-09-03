@@ -1,4 +1,4 @@
-import { DoctorGateway, DoctorGatewayDTO } from '@domain/gateways/doctor-gateway';
+import { DoctorGateway, DoctorGatewayDTO } from '@infra/gateways/doctor/doctor-gateway';
 
 export class FakeDoctorGateway implements DoctorGateway {
   public doctors: DoctorGatewayDTO[] = [];
