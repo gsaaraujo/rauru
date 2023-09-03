@@ -2,6 +2,7 @@ import { Entity } from '@shared/helpers/entity';
 import { BaseError } from '@shared/helpers/base-error';
 import { Either, left, right } from '@shared/helpers/either';
 
+import { InvalidPropertyError } from '@domain/errors/invalid-property-error';
 import { AppointmentCannotBeInThePastError } from '@domain/errors/appointment-cannot-be-in-the-past-error';
 
 export type AppointmentProps = {
@@ -12,6 +13,21 @@ export type AppointmentProps = {
 
 export class Appointment extends Entity<AppointmentProps> {
   public static create(props: AppointmentProps): Either<BaseError, Appointment> {
+    if (typeof props.doctorId !== 'string' || props.doctorId.trim() === '') {
+      const error = new InvalidPropertyError('DoctorId must be String and non-empty.');
+      return left(error);
+    }
+
+    if (typeof props.patientId !== 'string' || props.patientId.trim() === '') {
+      const error = new InvalidPropertyError('PatientId must be String and non-empty.');
+      return left(error);
+    }
+
+    if (!(props.date instanceof Date)) {
+      const error = new InvalidPropertyError('Date must be Date and non-empty.');
+      return left(error);
+    }
+
     const currentDate = new Date();
 
     if (props.date.getTime() < currentDate.getTime()) {

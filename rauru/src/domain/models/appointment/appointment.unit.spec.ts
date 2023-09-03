@@ -4,6 +4,7 @@ import { Either } from '@shared/helpers/either';
 import { BaseError } from '@shared/helpers/base-error';
 
 import { Appointment } from '@domain/models/appointment/appointment';
+import { InvalidPropertyError } from '@domain/errors/invalid-property-error';
 import { AppointmentCannotBeInThePastError } from '@domain/errors/appointment-cannot-be-in-the-past-error';
 
 describe('appointment', () => {
@@ -33,6 +34,46 @@ describe('appointment', () => {
       doctorId: 'any',
       patientId: 'any',
       date: new Date('2020-08-18T08:00:00Z'),
+    });
+
+    expect(sut.isLeft()).toBeTruthy();
+    expect(sut.value).toStrictEqual(output);
+  });
+
+  it('should fail if doctorId is not String', () => {
+    const output = new InvalidPropertyError('DoctorId must be String and non-empty.');
+
+    const sut: Either<BaseError, Appointment> = Appointment.create({
+      doctorId: ' ',
+      patientId: 'any',
+      date: new Date('2020-08-18T08:00:00Z'),
+    });
+
+    expect(sut.isLeft()).toBeTruthy();
+    expect(sut.value).toStrictEqual(output);
+  });
+
+  it('should fail if patientId is not String', () => {
+    const output = new InvalidPropertyError('PatientId must be String and non-empty.');
+
+    const sut: Either<BaseError, Appointment> = Appointment.create({
+      doctorId: 'any',
+      patientId: ' ',
+      date: new Date('2020-08-18T08:00:00Z'),
+    });
+
+    expect(sut.isLeft()).toBeTruthy();
+    expect(sut.value).toStrictEqual(output);
+  });
+
+  it('should fail if date is not Date', () => {
+    const output = new InvalidPropertyError('Date must be Date and non-empty.');
+
+    const sut: Either<BaseError, Appointment> = Appointment.create({
+      doctorId: 'any',
+      patientId: 'any',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      date: ' ' as any,
     });
 
     expect(sut.isLeft()).toBeTruthy();
