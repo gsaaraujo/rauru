@@ -3,8 +3,10 @@ import { BaseError } from '@shared/helpers/base-error';
 import { Either, left, right } from '@shared/helpers/either';
 
 import { Schedule } from '@domain/models/schedule/schedule';
+import { DoctorGateway } from '@domain/gateways/doctor-gateway';
 import { PatientGateway } from '@domain/gateways/patient-gateway';
 import { Appointment } from '@domain/models/appointment/appointment';
+import { DoctorNotFoundError } from '@domain/errors/doctor-not-found-error';
 import { PatientNotFoundError } from '@domain/errors/patient-not-found-error';
 import { ScheduleNotFoundError } from '@domain/errors/schedule-not-found-error';
 import { ScheduleRepository } from '@domain/models/schedule/schedule-repository';
@@ -23,13 +25,22 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
   public constructor(
     private readonly scheduleRepository: ScheduleRepository,
     private readonly appointmentRepository: AppointmentRepository,
+    private readonly doctorGateway: DoctorGateway,
     private readonly patientGateway: PatientGateway,
   ) {
     super();
   }
 
   public async execute(input: BookAnAppointmentInput): Promise<Either<BaseError, void>> {
-    const patientExists: boolean = await this.patientGateway.exists(input.patientId);
+    const [doctorExists, patientExists] = await Promise.all([
+      this.doctorGateway.exists(input.doctorId),
+      this.patientGateway.exists(input.patientId),
+    ]);
+
+    if (!doctorExists) {
+      const error: BaseError = new DoctorNotFoundError('No doctor was found.');
+      return left(error);
+    }
 
     if (!patientExists) {
       const error: BaseError = new PatientNotFoundError('No patient was found.');
