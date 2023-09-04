@@ -4,6 +4,7 @@ import { Either, left, right } from '@shared/helpers/either';
 
 import { Schedule } from '@domain/models/schedule/schedule';
 import { Appointment } from '@domain/models/appointment/appointment';
+import { AppointmentBooked } from '@domain/events/appointment-booked';
 import { DoctorNotFoundError } from '@domain/errors/doctor-not-found-error';
 import { PatientNotFoundError } from '@domain/errors/patient-not-found-error';
 import { ScheduleNotFoundError } from '@domain/errors/schedule-not-found-error';
@@ -13,8 +14,7 @@ import { TimeSlotAlreadyBookedError } from '@domain/errors/time-slot-already-boo
 
 import { DoctorGateway } from '@infra/gateways/doctor/doctor-gateway';
 import { PatientGateway } from '@infra/gateways/patient/patient-gateway';
-import { FakeQueueAdapter } from '@infra/adapters/queue/fake-messaging-adapter';
-import { AppointmentBooked } from '@domain/events/appointment-booked';
+import { FakeQueueAdapter } from '@infra/adapters/queue/fake-queue-adapter';
 
 export type BookAnAppointmentInput = {
   doctorId: string;

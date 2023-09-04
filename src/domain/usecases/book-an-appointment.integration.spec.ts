@@ -12,11 +12,11 @@ import { ScheduleNotFoundError } from '@domain/errors/schedule-not-found-error';
 import { TimeSlotNotFoundError } from '@domain/errors/time-slot-not-found-error';
 import { TimeSlotAlreadyBookedError } from '@domain/errors/time-slot-already-booked-error';
 
+import { FakeQueueAdapter } from '@infra/adapters/queue/fake-queue-adapter';
 import { FakeDoctorGateway } from '@infra/gateways/doctor/fake-doctor-gateway';
 import { FakePatientGateway } from '@infra/gateways/patient/fake-patient-gateway';
 import { FakeScheduleRepository } from '@infra/repositories/schedule/fake-schedule-repository';
 import { FakeAppointmentRepository } from '@infra/repositories/appointment/fake-appointment-repository';
-import { FakeQueueAdapter } from '@infra/adapters/queue/fake-messaging-adapter';
 
 describe('book-an-appointment', () => {
   let bookAnAppointment: BookAnAppointment;
