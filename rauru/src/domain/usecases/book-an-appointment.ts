@@ -13,6 +13,8 @@ import { TimeSlotAlreadyBookedError } from '@domain/errors/time-slot-already-boo
 
 import { DoctorGateway } from '@infra/gateways/doctor/doctor-gateway';
 import { PatientGateway } from '@infra/gateways/patient/patient-gateway';
+import { FakeQueueAdapter } from '@infra/adapters/queue/fake-messaging-adapter';
+import { AppointmentBooked } from '@domain/events/appointment-booked';
 
 export type BookAnAppointmentInput = {
   doctorId: string;
@@ -28,6 +30,7 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
     private readonly appointmentRepository: AppointmentRepository,
     private readonly doctorGateway: DoctorGateway,
     private readonly patientGateway: PatientGateway,
+    private readonly fakeQueueAdapter: FakeQueueAdapter,
   ) {
     super();
   }
@@ -82,6 +85,8 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
 
     const appointment: Appointment = appointmentOrError.value;
     await this.appointmentRepository.create(appointment);
+    const appointmentBooked = new AppointmentBooked(appointment.id);
+    this.fakeQueueAdapter.publish('AppointmentBooked', JSON.stringify(appointmentBooked));
     return right(undefined);
   }
 }

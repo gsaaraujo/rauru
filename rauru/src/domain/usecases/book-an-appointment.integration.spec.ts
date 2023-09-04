@@ -16,6 +16,7 @@ import { FakeDoctorGateway } from '@infra/gateways/doctor/fake-doctor-gateway';
 import { FakePatientGateway } from '@infra/gateways/patient/fake-patient-gateway';
 import { FakeScheduleRepository } from '@infra/repositories/schedule/fake-schedule-repository';
 import { FakeAppointmentRepository } from '@infra/repositories/appointment/fake-appointment-repository';
+import { FakeQueueAdapter } from '@infra/adapters/queue/fake-messaging-adapter';
 
 describe('book-an-appointment', () => {
   let bookAnAppointment: BookAnAppointment;
@@ -23,8 +24,10 @@ describe('book-an-appointment', () => {
   let fakeAppointmentRepository: FakeAppointmentRepository;
   let fakeDoctorGateway: FakeDoctorGateway;
   let fakePatientGateway: FakePatientGateway;
+  let fakeQueueAdapter: FakeQueueAdapter;
 
   beforeEach(() => {
+    fakeQueueAdapter = new FakeQueueAdapter();
     fakeDoctorGateway = new FakeDoctorGateway();
     fakePatientGateway = new FakePatientGateway();
     fakeScheduleRepository = new FakeScheduleRepository();
@@ -34,12 +37,14 @@ describe('book-an-appointment', () => {
       fakeAppointmentRepository,
       fakeDoctorGateway,
       fakePatientGateway,
+      fakeQueueAdapter,
     );
   });
 
   it(`given the doctor has available time slot on a specific date
       when the patient attempt to book an appointment
       then it should succeed`, async () => {
+    fakeQueueAdapter.messages = [];
     fakeDoctorGateway.doctors = [{ id: 'f5705c67-4c74-4cea-a993-9fa1c56164b6' }];
     fakePatientGateway.patients = [{ id: '9ea8f5df-a906-4852-940b-9cb28784eb62' }];
     fakeScheduleRepository.schedules = [
@@ -63,6 +68,7 @@ describe('book-an-appointment', () => {
 
     expect(sut.isRight()).toBeTruthy();
     expect(fakeAppointmentRepository.appointments).toHaveLength(1);
+    expect(fakeQueueAdapter.messages).toHaveLength(1);
   });
 
   it(`given the doctor has no available time slot on a specific date
