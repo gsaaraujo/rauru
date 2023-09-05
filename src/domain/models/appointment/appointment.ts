@@ -2,12 +2,15 @@ import { Entity } from '@shared/helpers/entity';
 import { BaseError } from '@shared/helpers/base-error';
 import { Either, left, right } from '@shared/helpers/either';
 
+import { Money } from '@domain/models/money';
 import { InvalidPropertyError } from '@domain/errors/invalid-property-error';
 import { AppointmentCannotBeInThePastError } from '@domain/errors/appointment-cannot-be-in-the-past-error';
 
 export type AppointmentProps = {
   doctorId: string;
   patientId: string;
+  price: Money;
+  creditCardToken: string;
   date: Date;
 };
 
@@ -53,5 +56,13 @@ export class Appointment extends Entity<AppointmentProps> {
 
   get date(): Date {
     return this._props.date;
+  }
+
+  get price(): Money {
+    return this._props.price;
+  }
+
+  get creditCardToken(): string {
+    return this._props.creditCardToken;
   }
 }

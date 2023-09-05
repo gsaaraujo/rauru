@@ -63,12 +63,15 @@ describe('book-an-appointment', () => {
     const sut: Either<BaseError, void> = await bookAnAppointment.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
+      price: 140,
+      creditCardToken: 'any',
       timeSlot: new Date('2100-08-20T14:00:00Z'),
     });
 
     expect(sut.isRight()).toBeTruthy();
     expect(fakeAppointmentRepository.appointments).toHaveLength(1);
     expect(fakeQueueAdapter.messages).toHaveLength(1);
+    expect(fakeQueueAdapter.messages[0].name).toBe('AppointmentBooked');
   });
 
   it(`given the doctor has no available time slot on a specific date
@@ -92,6 +95,8 @@ describe('book-an-appointment', () => {
     const sut: Either<BaseError, void> = await bookAnAppointment.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
+      price: 140,
+      creditCardToken: 'any',
       timeSlot: new Date('2100-08-20T14:00:00Z'),
     });
 
@@ -115,6 +120,8 @@ describe('book-an-appointment', () => {
     const sut: Either<BaseError, void> = await bookAnAppointment.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
+      price: 140,
+      creditCardToken: 'any',
       timeSlot: new Date('2100-08-20T14:00:00Z'),
     });
 
@@ -130,6 +137,8 @@ describe('book-an-appointment', () => {
     const sut: Either<BaseError, void> = await bookAnAppointment.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
+      price: 140,
+      creditCardToken: 'any',
       timeSlot: new Date('2100-08-20T14:00:00Z'),
     });
 
@@ -145,6 +154,8 @@ describe('book-an-appointment', () => {
     const sut: Either<BaseError, void> = await bookAnAppointment.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
+      price: 140,
+      creditCardToken: 'any',
       timeSlot: new Date('2100-08-20T14:00:00Z'),
     });
 
@@ -160,6 +171,8 @@ describe('book-an-appointment', () => {
     const sut: Either<BaseError, void> = await bookAnAppointment.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
+      price: 140,
+      creditCardToken: 'any',
       timeSlot: new Date('2100-08-20T14:00:00Z'),
     });
 

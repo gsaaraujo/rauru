@@ -15,10 +15,13 @@ import { TimeSlotAlreadyBookedError } from '@domain/errors/time-slot-already-boo
 import { DoctorGateway } from '@infra/gateways/doctor/doctor-gateway';
 import { PatientGateway } from '@infra/gateways/patient/patient-gateway';
 import { FakeQueueAdapter } from '@infra/adapters/queue/fake-queue-adapter';
+import { Money } from '@domain/models/money';
 
 export type BookAnAppointmentInput = {
   doctorId: string;
   patientId: string;
+  price: number;
+  creditCardToken: string;
   timeSlot: Date;
 };
 
@@ -72,10 +75,21 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
       return left(error);
     }
 
+    const moneyOrError: Either<BaseError, Money> = Money.create({ amount: input.price });
+
+    if (moneyOrError.isLeft()) {
+      const error: BaseError = moneyOrError.value;
+      return left(error);
+    }
+
+    const money: Money = moneyOrError.value;
+
     const appointmentOrError: Either<BaseError, Appointment> = Appointment.create({
       doctorId: input.doctorId,
       patientId: input.patientId,
       date: input.timeSlot,
+      price: money,
+      creditCardToken: input.creditCardToken,
     });
 
     if (appointmentOrError.isLeft()) {
@@ -85,8 +99,12 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
 
     const appointment: Appointment = appointmentOrError.value;
     await this.appointmentRepository.create(appointment);
-    const appointmentBooked = new AppointmentBooked(appointment.id);
-    this.fakeQueueAdapter.publish('AppointmentBooked', JSON.stringify(appointmentBooked));
+    const appointmentBooked = new AppointmentBooked(
+      appointment.id,
+      appointment.price.amount,
+      appointment.creditCardToken,
+    );
+    await this.fakeQueueAdapter.publish('AppointmentBooked', JSON.stringify(appointmentBooked));
     return right(undefined);
   }
 }
