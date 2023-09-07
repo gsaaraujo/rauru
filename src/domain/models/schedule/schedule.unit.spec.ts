@@ -9,7 +9,7 @@ import { InvalidPropertyError } from '@domain/errors/invalid-property-error';
 
 describe('schedule', () => {
   it('should create Schedule', () => {
-    const output: Schedule = Schedule.reconstitute({
+    const output: Schedule = Schedule.reconstitute('any', {
       doctorId: 'any',
       timeSlots: [
         TimeSlot.reconstitute({

@@ -48,7 +48,7 @@ describe('book-an-appointment', () => {
     fakeDoctorGateway.doctors = [{ id: 'f5705c67-4c74-4cea-a993-9fa1c56164b6' }];
     fakePatientGateway.patients = [{ id: '9ea8f5df-a906-4852-940b-9cb28784eb62' }];
     fakeScheduleRepository.schedules = [
-      Schedule.reconstitute({
+      Schedule.reconstitute('any', {
         doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
         timeSlots: [
           TimeSlot.reconstitute({
@@ -80,7 +80,7 @@ describe('book-an-appointment', () => {
     fakeDoctorGateway.doctors = [{ id: 'f5705c67-4c74-4cea-a993-9fa1c56164b6' }];
     fakePatientGateway.patients = [{ id: '9ea8f5df-a906-4852-940b-9cb28784eb62' }];
     fakeScheduleRepository.schedules = [
-      Schedule.reconstitute({
+      Schedule.reconstitute('any', {
         doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
         timeSlots: [
           TimeSlot.reconstitute({
@@ -110,7 +110,7 @@ describe('book-an-appointment', () => {
     fakeDoctorGateway.doctors = [{ id: 'f5705c67-4c74-4cea-a993-9fa1c56164b6' }];
     fakePatientGateway.patients = [{ id: '9ea8f5df-a906-4852-940b-9cb28784eb62' }];
     fakeScheduleRepository.schedules = [
-      Schedule.reconstitute({
+      Schedule.reconstitute('any', {
         doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
         timeSlots: [],
       }),

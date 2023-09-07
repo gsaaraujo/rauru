@@ -1,10 +1,13 @@
 import { Usecase } from '@shared/helpers/usecase';
 import { BaseError } from '@shared/helpers/base-error';
-import { Either, left } from '@shared/helpers/either';
+import { Either, left, right } from '@shared/helpers/either';
 
 import { Appointment } from '@domain/models/appointment/appointment';
 import { AppointmentNotFoundError } from '@domain/errors/appointment-not-found-error';
 import { AppointmentRepository } from '@domain/models/appointment/appointment-repository';
+
+import { QueueAdapter } from '@infra/adapters/queue/queue-adapter';
+import { AppointmentConfirmed } from '@domain/events/appointment-confirmed';
 
 export type ConfirmAnAppointmentInput = {
   appointmentId: string;
@@ -13,7 +16,10 @@ export type ConfirmAnAppointmentInput = {
 export type ConfirmAnAppointmentOutput = void;
 
 export class ConfirmAnAppointment extends Usecase<ConfirmAnAppointmentInput, ConfirmAnAppointmentOutput> {
-  public constructor(private readonly appointmentRepository: AppointmentRepository) {
+  public constructor(
+    private readonly appointmentRepository: AppointmentRepository,
+    private readonly queueAdapter: QueueAdapter,
+  ) {
     super();
   }
 
@@ -25,6 +31,9 @@ export class ConfirmAnAppointment extends Usecase<ConfirmAnAppointmentInput, Con
       return left(error);
     }
 
-    throw new Error('Method not implemented.');
+    appointment.confirmAppointment();
+    const appointmentConfirmed = new AppointmentConfirmed(appointment.id);
+    await this.queueAdapter.publish('AppointmentConfirmed', JSON.stringify(appointmentConfirmed));
+    return right(undefined);
   }
 }

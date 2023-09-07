@@ -22,8 +22,8 @@ export class Schedule extends Entity<ScheduleProps> {
     return right(schedule);
   }
 
-  public static reconstitute(props: ScheduleProps): Schedule {
-    return new Schedule(props);
+  public static reconstitute(id: string, props: ScheduleProps): Schedule {
+    return new Schedule(props, id);
   }
 
   public isTimeSlotAvailable(date: Date): Either<BaseError, boolean> {

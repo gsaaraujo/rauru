@@ -4,15 +4,16 @@ import { Either } from '@shared/helpers/either';
 import { BaseError } from '@shared/helpers/base-error';
 
 import { Money } from '@domain/models/money';
-import { Appointment } from '@domain/models/appointment/appointment';
+import { Appointment, AppointmentStatus } from '@domain/models/appointment/appointment';
 import { InvalidPropertyError } from '@domain/errors/invalid-property-error';
 import { AppointmentCannotBeInThePastError } from '@domain/errors/appointment-cannot-be-in-the-past-error';
 
 describe('appointment', () => {
   it('should create Appointment', () => {
-    const output: Appointment = Appointment.reconstitute({
+    const output: Appointment = Appointment.reconstitute('any', {
       doctorId: 'any',
       patientId: 'any',
+      status: AppointmentStatus.PENDING,
       price: Money.reconstitute({ amount: 0 }),
       creditCardToken: 'any',
       date: new Date('2100-08-18T08:00:00Z'),

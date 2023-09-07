@@ -6,16 +6,26 @@ import { Money } from '@domain/models/money';
 import { InvalidPropertyError } from '@domain/errors/invalid-property-error';
 import { AppointmentCannotBeInThePastError } from '@domain/errors/appointment-cannot-be-in-the-past-error';
 
+export enum AppointmentStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+}
+
 export type AppointmentProps = {
   doctorId: string;
   patientId: string;
-  price: Money;
   creditCardToken: string;
   date: Date;
+  price: Money;
+  status: AppointmentStatus;
 };
 
 export class Appointment extends Entity<AppointmentProps> {
-  public static create(props: AppointmentProps): Either<BaseError, Appointment> {
+  public confirmAppointment() {
+    this._props.status = AppointmentStatus.CONFIRMED;
+  }
+
+  public static create(props: Omit<AppointmentProps, 'status'>): Either<BaseError, Appointment> {
     if (typeof props.doctorId !== 'string' || props.doctorId.trim() === '') {
       const error = new InvalidPropertyError('DoctorId must be String and non-empty.');
       return left(error);
@@ -38,12 +48,15 @@ export class Appointment extends Entity<AppointmentProps> {
       return left(error);
     }
 
-    const appointment = new Appointment(props);
+    const appointment = new Appointment({
+      ...props,
+      status: AppointmentStatus.PENDING,
+    });
     return right(appointment);
   }
 
-  public static reconstitute(props: AppointmentProps): Appointment {
-    return new Appointment(props);
+  public static reconstitute(id: string, props: AppointmentProps): Appointment {
+    return new Appointment(props, id);
   }
 
   get doctorId(): string {
@@ -64,5 +77,9 @@ export class Appointment extends Entity<AppointmentProps> {
 
   get creditCardToken(): string {
     return this._props.creditCardToken;
+  }
+
+  get status(): AppointmentStatus {
+    return this._props.status;
   }
 }
