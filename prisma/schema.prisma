@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+}
+
+enum TimeSlotStatus {
+  AVAILABLE
+  UNAVAILABLE
+}
+
+model Patient {
+  id               String             @id @db.Uuid
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @default(now()) @updatedAt @map("updated_at")
+  Appointment      Appointment[]
+  TokenizedPayment TokenizedPayment[]
+
+  @@map("patients")
+}
+
+model Doctor {
+  id          String        @id @db.Uuid
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
+  Appointment Appointment[]
+  Schedule    Schedule[]
+
+  @@map("doctors")
+}
+
+model Appointment {
+  id        String            @id @db.Uuid
+  doctor    Doctor            @relation(fields: [doctorId], references: [id])
+  doctorId  String            @map("doctor_id") @db.Uuid
+  patient   Patient           @relation(fields: [patientId], references: [id])
+  patientId String            @map("patient_id") @db.Uuid
+  date      DateTime
+  price     Float
+  status    AppointmentStatus
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @default(now()) @updatedAt @map("updated_at")
+
+  @@map("appointments")
+}
+
+model Schedule {
+  id        String     @id @db.Uuid
+  doctor    Doctor     @relation(fields: [doctorId], references: [id])
+  doctorId  String     @map("doctor_id") @db.Uuid
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
+  TimeSlot  TimeSlot[]
+
+  @@map("schedules")
+}
+
+model TimeSlot {
+  id         String         @id @db.Uuid
+  schedule   Schedule       @relation(fields: [scheduleId], references: [id])
+  scheduleId String         @map("schedule_id") @db.Uuid
+  date       DateTime
+  status     TimeSlotStatus
+  createdAt  DateTime       @default(now()) @map("created_at")
+  updatedAt  DateTime       @default(now()) @updatedAt @map("updated_at")
+
+  @@map("time_slots")
+}
+
+model TokenizedPayment {
+  id              String   @id @db.Uuid
+  patient         Patient  @relation(fields: [patientId], references: [id])
+  patientId       String   @map("patient_id") @db.Uuid
+  creditCardToken String   @map("credit_card_token")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("tokenized_payments")
+}

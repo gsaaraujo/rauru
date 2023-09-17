@@ -3,6 +3,7 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import { Either } from '@shared/helpers/either';
 import { BaseError } from '@shared/helpers/base-error';
 
+import { DateTime } from '@domain/models/date-time';
 import { Schedule } from '@domain/models/schedule/schedule';
 import { TimeSlot, TimeSlotStatus } from '@domain/models/time-slot';
 import { BookAnAppointment } from '@domain/usecases/book-an-appointment';
@@ -52,7 +53,7 @@ describe('book-an-appointment', () => {
         doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
         timeSlots: [
           TimeSlot.reconstitute({
-            date: new Date('2100-08-20T14:00:00Z'),
+            dateTime: DateTime.reconstitute({ date: '18/08/2100', time: '08:00' }),
             status: TimeSlotStatus.AVAILABLE,
           }),
         ],
@@ -65,7 +66,8 @@ describe('book-an-appointment', () => {
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
       creditCardToken: 'any',
-      timeSlot: new Date('2100-08-20T14:00:00Z'),
+      time: '08:00',
+      date: '18/08/2100',
     });
 
     expect(sut.isRight()).toBeTruthy();
@@ -84,7 +86,7 @@ describe('book-an-appointment', () => {
         doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
         timeSlots: [
           TimeSlot.reconstitute({
-            date: new Date('2100-08-20T14:00:00Z'),
+            dateTime: DateTime.reconstitute({ date: '18/08/2100', time: '08:00' }),
             status: TimeSlotStatus.UNAVAILABLE,
           }),
         ],
@@ -97,7 +99,8 @@ describe('book-an-appointment', () => {
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
       creditCardToken: 'any',
-      timeSlot: new Date('2100-08-20T14:00:00Z'),
+      time: '08:00',
+      date: '18/08/2100',
     });
 
     expect(sut.isLeft()).toBeTruthy();
@@ -122,7 +125,8 @@ describe('book-an-appointment', () => {
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
       creditCardToken: 'any',
-      timeSlot: new Date('2100-08-20T14:00:00Z'),
+      time: '08:00',
+      date: '18/08/2100',
     });
 
     expect(sut.isLeft()).toBeTruthy();
@@ -139,7 +143,8 @@ describe('book-an-appointment', () => {
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
       creditCardToken: 'any',
-      timeSlot: new Date('2100-08-20T14:00:00Z'),
+      time: '08:00',
+      date: '18/08/2100',
     });
 
     expect(sut.isLeft()).toBeTruthy();
@@ -156,7 +161,8 @@ describe('book-an-appointment', () => {
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
       creditCardToken: 'any',
-      timeSlot: new Date('2100-08-20T14:00:00Z'),
+      time: '08:00',
+      date: '18/08/2100',
     });
 
     expect(sut.isLeft()).toBeTruthy();
@@ -173,7 +179,8 @@ describe('book-an-appointment', () => {
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
       creditCardToken: 'any',
-      timeSlot: new Date('2100-08-20T14:00:00Z'),
+      time: '08:00',
+      date: '18/08/2100',
     });
 
     expect(sut.isLeft()).toBeTruthy();

@@ -2,6 +2,7 @@ import { Usecase } from '@shared/helpers/usecase';
 import { BaseError } from '@shared/helpers/base-error';
 import { Either, left, right } from '@shared/helpers/either';
 
+import { Money } from '@domain/models/money';
 import { Schedule } from '@domain/models/schedule/schedule';
 import { Appointment } from '@domain/models/appointment/appointment';
 import { AppointmentBooked } from '@domain/events/appointment-booked';
@@ -12,17 +13,18 @@ import { ScheduleRepository } from '@domain/models/schedule/schedule-repository'
 import { AppointmentRepository } from '@domain/models/appointment/appointment-repository';
 import { TimeSlotAlreadyBookedError } from '@domain/errors/time-slot-already-booked-error';
 
+import { QueueAdapter } from '@infra/adapters/queue/queue-adapter';
 import { DoctorGateway } from '@infra/gateways/doctor/doctor-gateway';
 import { PatientGateway } from '@infra/gateways/patient/patient-gateway';
-import { FakeQueueAdapter } from '@infra/adapters/queue/fake-queue-adapter';
-import { Money } from '@domain/models/money';
+import { DateTime } from '@domain/models/date-time';
 
 export type BookAnAppointmentInput = {
   doctorId: string;
   patientId: string;
   price: number;
   creditCardToken: string;
-  timeSlot: Date;
+  date: string;
+  time: string;
 };
 
 export type BookAnAppointmentOutput = void;
@@ -33,7 +35,7 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
     private readonly appointmentRepository: AppointmentRepository,
     private readonly doctorGateway: DoctorGateway,
     private readonly patientGateway: PatientGateway,
-    private readonly fakeQueueAdapter: FakeQueueAdapter,
+    private readonly queueAdapter: QueueAdapter,
   ) {
     super();
   }
@@ -61,7 +63,10 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
       return left(error);
     }
 
-    const isTimeSlotAvailableOrError: Either<BaseError, boolean> = scheduleFound.isTimeSlotAvailable(input.timeSlot);
+    const isTimeSlotAvailableOrError: Either<BaseError, boolean> = scheduleFound.isTimeSlotAvailable(
+      input.date,
+      input.time,
+    );
 
     if (isTimeSlotAvailableOrError.isLeft()) {
       const error: BaseError = isTimeSlotAvailableOrError.value;
@@ -84,10 +89,19 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
 
     const money: Money = moneyOrError.value;
 
+    const dateTimeOrError: Either<BaseError, DateTime> = DateTime.create({ date: input.date, time: input.time });
+
+    if (dateTimeOrError.isLeft()) {
+      const error: BaseError = dateTimeOrError.value;
+      return left(error);
+    }
+
+    const dateTime: DateTime = dateTimeOrError.value;
+
     const appointmentOrError: Either<BaseError, Appointment> = Appointment.create({
       doctorId: input.doctorId,
       patientId: input.patientId,
-      date: input.timeSlot,
+      dateTime,
       price: money,
       creditCardToken: input.creditCardToken,
     });
@@ -104,7 +118,7 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
       appointment.price.amount,
       appointment.creditCardToken,
     );
-    await this.fakeQueueAdapter.publish('AppointmentBooked', JSON.stringify(appointmentBooked));
+    await this.queueAdapter.publish('AppointmentBooked', JSON.stringify(appointmentBooked));
     return right(undefined);
   }
 }

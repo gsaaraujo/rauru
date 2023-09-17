@@ -3,7 +3,7 @@ import { BaseError } from '@shared/helpers/base-error';
 import { Either, left, right } from '@shared/helpers/either';
 
 import { Money } from '@domain/models/money';
-import { InvalidPropertyError } from '@domain/errors/invalid-property-error';
+import { DateTime } from '@domain/models/date-time';
 import { AppointmentCannotBeInThePastError } from '@domain/errors/appointment-cannot-be-in-the-past-error';
 
 export enum AppointmentStatus {
@@ -14,9 +14,9 @@ export enum AppointmentStatus {
 export type AppointmentProps = {
   doctorId: string;
   patientId: string;
-  creditCardToken: string;
-  date: Date;
+  dateTime: DateTime;
   price: Money;
+  creditCardToken: string;
   status: AppointmentStatus;
 };
 
@@ -26,25 +26,10 @@ export class Appointment extends Entity<AppointmentProps> {
   }
 
   public static create(props: Omit<AppointmentProps, 'status'>): Either<BaseError, Appointment> {
-    if (typeof props.doctorId !== 'string' || props.doctorId.trim() === '') {
-      const error = new InvalidPropertyError('DoctorId must be String and non-empty.');
-      return left(error);
-    }
+    const dateNow = new Date();
 
-    if (typeof props.patientId !== 'string' || props.patientId.trim() === '') {
-      const error = new InvalidPropertyError('PatientId must be String and non-empty.');
-      return left(error);
-    }
-
-    if (!(props.date instanceof Date)) {
-      const error = new InvalidPropertyError('Date must be Date and non-empty.');
-      return left(error);
-    }
-
-    const currentDate = new Date();
-
-    if (props.date.getTime() < currentDate.getTime()) {
-      const error = new AppointmentCannotBeInThePastError('Cannot book an appointment in the past.');
+    if (props.dateTime.dateTime.getTime() < dateNow.getTime()) {
+      const error = new AppointmentCannotBeInThePastError('The appointment cannot be booked in the past.');
       return left(error);
     }
 
@@ -67,8 +52,8 @@ export class Appointment extends Entity<AppointmentProps> {
     return this._props.patientId;
   }
 
-  get date(): Date {
-    return this._props.date;
+  get dateTime(): DateTime {
+    return this._props.dateTime;
   }
 
   get price(): Money {

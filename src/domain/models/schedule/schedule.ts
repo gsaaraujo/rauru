@@ -26,9 +26,9 @@ export class Schedule extends Entity<ScheduleProps> {
     return new Schedule(props, id);
   }
 
-  public isTimeSlotAvailable(date: Date): Either<BaseError, boolean> {
+  public isTimeSlotAvailable(date: string, time: string): Either<BaseError, boolean> {
     const timeSlotFound: TimeSlot | undefined = this._props.timeSlots.find(
-      (timeSlot) => timeSlot.date.getTime() === date.getTime(),
+      (timeSlot) => timeSlot.dateTime.date === date && timeSlot.dateTime.time === time,
     );
 
     if (!timeSlotFound) {

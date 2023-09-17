@@ -4,6 +4,7 @@ import { Either } from '@shared/helpers/either';
 import { BaseError } from '@shared/helpers/base-error';
 
 import { Money } from '@domain/models/money';
+import { DateTime } from '@domain/models/date-time';
 import { ConfirmAnAppointment } from '@domain/usecases/confirm-an-appointment';
 import { AppointmentNotFoundError } from '@domain/errors/appointment-not-found-error';
 import { Appointment, AppointmentStatus } from '@domain/models/appointment/appointment';
@@ -32,7 +33,7 @@ describe('confirm-an-appointment', () => {
         price: Money.reconstitute({ amount: 140 }),
         creditCardToken: 'any',
         status: AppointmentStatus.PENDING,
-        date: new Date('2100-08-18T08:00:00Z'),
+        dateTime: DateTime.reconstitute({ date: '2021-09-10', time: '08:00' }),
       }),
     ];
     fakeQueueAdapter.messages = [];
