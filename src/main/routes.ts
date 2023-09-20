@@ -10,7 +10,7 @@ import { RabbitMQqueueAdapter } from '@infra/adapters/queue/rabbitmq-queue-adapt
 import { PrismaPatientGateway } from '@infra/gateways/patient/prisma-patient-gateway';
 import { PrismaScheduleRepository } from '@infra/repositories/schedule/prisma-schedule-repository';
 import { PrismaAppointmentRepository } from '@infra/repositories/appointment/prisma-appointment-repository';
-import { ExpressBookAnAppointmentController } from '@infra/presenters/express-book-an-appointment-controller';
+import { ExpressBookAnAppointmentController } from '@infra/controllers/express-book-an-appointment-controller';
 
 export const router = Router();
 
