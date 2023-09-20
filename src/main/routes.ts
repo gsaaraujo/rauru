@@ -14,6 +14,10 @@ import { ExpressBookAnAppointmentController } from '@infra/controllers/express-b
 
 export const router = Router();
 
+router.get('/', (request: Request, response: Response) => {
+  return response.status(200).send({});
+});
+
 router.post('/book-an-appointment', async (request: Request, response: Response) => {
   const prisma = new PrismaClient();
   const connection = await amqplib.connect('amqp://localhost:5672');
