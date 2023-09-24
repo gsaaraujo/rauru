@@ -87,7 +87,6 @@ export class ExpressBookAnAppointmentController {
         errorMessage: 'Something unexpected happened',
       });
     } catch (error) {
-      console.error(error);
       return response.status(500).send({
         errorMessage: 'Something unexpected happened',
       });

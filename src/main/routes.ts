@@ -10,12 +10,27 @@ import { RabbitMQqueueAdapter } from '@infra/adapters/queue/rabbitmq-queue-adapt
 import { PrismaPatientGateway } from '@infra/gateways/patient/prisma-patient-gateway';
 import { PrismaScheduleRepository } from '@infra/repositories/schedule/prisma-schedule-repository';
 import { PrismaAppointmentRepository } from '@infra/repositories/appointment/prisma-appointment-repository';
-import { ExpressBookAnAppointmentController } from '@infra/controllers/express-book-an-appointment-controller';
+import { ExpressBookAnAppointmentController } from '@infra/controllers/rest/express-book-an-appointment-controller';
+import { ExpressGetAllAppointmentsByDoctorIdController } from '@infra/controllers/rest/express-get-all-appointments-by-doctor-id-controller';
+import { PrismaAppointmentGateway } from '@infra/gateways/appointment/prisma-appointment-gateway';
 
 export const router = Router();
 
 router.get('/', (request: Request, response: Response) => {
   return response.status(200).send({});
+});
+
+router.get('/get-all-appointments-by-doctor-id/:doctorId', (request: Request, response: Response) => {
+  const prisma = new PrismaClient();
+  const prismaDoctorGateway = new PrismaDoctorGateway(prisma);
+  const prismaAppointmentGateway = new PrismaAppointmentGateway(prisma);
+
+  const expressGetAllAppointmentsByDoctorIdController = new ExpressGetAllAppointmentsByDoctorIdController(
+    prismaAppointmentGateway,
+    prismaDoctorGateway,
+  );
+
+  return expressGetAllAppointmentsByDoctorIdController.handle(request, response);
 });
 
 router.post('/book-an-appointment', async (request: Request, response: Response) => {
