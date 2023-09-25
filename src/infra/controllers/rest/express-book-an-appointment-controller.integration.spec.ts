@@ -1,8 +1,47 @@
 import request from 'supertest';
-import { describe, expect, it } from 'vitest';
+import { PrismaClient } from '@prisma/client';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 describe('express-book-an-appointment', () => {
+  let prismaClient: PrismaClient;
+
+  beforeAll(async () => {
+    prismaClient = new PrismaClient();
+    await prismaClient.$transaction([prismaClient.doctor.deleteMany(), prismaClient.patient.deleteMany()]);
+  });
+
+  beforeEach(async () => {
+    await prismaClient.$transaction([prismaClient.doctor.deleteMany(), prismaClient.patient.deleteMany()]);
+  });
+
+  afterAll(async () => {
+    await prismaClient.$transaction([prismaClient.doctor.deleteMany(), prismaClient.patient.deleteMany()]);
+  });
+
   it('should book an appointment', async () => {
+    await prismaClient.$transaction([
+      prismaClient.doctor.create({
+        data: { id: '6bf34422-622c-4c58-a751-4614980fce03' },
+      }),
+      prismaClient.patient.create({
+        data: { id: 'b957aa4b-654e-47b0-a935-0923877d57a7' },
+      }),
+      prismaClient.schedule.create({
+        data: {
+          id: '821339f9-49de-4714-9fa4-db72dcb29eb5',
+          doctorId: '6bf34422-622c-4c58-a751-4614980fce03',
+        },
+      }),
+      prismaClient.timeSlot.create({
+        data: {
+          id: '99f46ea7-35db-47bb-94d7-9c5d02a978cc',
+          scheduleId: '821339f9-49de-4714-9fa4-db72dcb29eb5',
+          status: 'AVAILABLE',
+          date: new Date('2100-08-10T13:15:00.000Z'),
+        },
+      }),
+    ]);
+
     const sut = await request('http://localhost:3000').post('/book-an-appointment').send({
       doctorId: '6bf34422-622c-4c58-a751-4614980fce03',
       patientId: 'b957aa4b-654e-47b0-a935-0923877d57a7',
