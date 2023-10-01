@@ -8,7 +8,6 @@ import {
 import { Money } from '@domain/models/money';
 import { Appointment, AppointmentStatus } from '@domain/models/appointment/appointment';
 import { AppointmentRepository } from '@domain/models/appointment/appointment-repository';
-import { DateTime } from '@domain/models/date-time';
 
 export class PrismaAppointmentRepository implements AppointmentRepository {
   public constructor(private readonly prisma: PrismaClient) {}
@@ -19,7 +18,7 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
         id: appointment.id,
         doctorId: appointment.doctorId,
         patientId: appointment.patientId,
-        date: appointment.dateTime.dateTime,
+        date: appointment.date,
         status: appointment.status,
         price: appointment.price.amount,
       },
@@ -44,27 +43,23 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
       [PrismaAppointmentStatus.CONFIRMED]: AppointmentStatus.CONFIRMED,
     };
 
-    const formatDate = prismaAppointmentFound.date.toLocaleDateString('pt-BR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-
-    const formatTime = prismaAppointmentFound.date.toLocaleTimeString('pt-BR', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-
     const appointment: Appointment = Appointment.reconstitute(prismaAppointmentFound.id, {
       doctorId: prismaAppointmentFound.doctorId,
       patientId: prismaAppointmentFound.patientId,
-      dateTime: DateTime.reconstitute({ date: formatDate, time: formatTime }),
+      date: prismaAppointmentFound.date,
       creditCardToken: tokenizedPaymentFound.creditCardToken,
       status: toAppointmentStatus[prismaAppointmentFound.status],
       price: Money.reconstitute({ amount: prismaAppointmentFound.price }),
     });
 
     return appointment;
+  }
+
+  public async isTimeSlotBookedAlready(timeSlot: Date): Promise<boolean> {
+    const prismaAppointmentFound: PrismaAppointment | null = await this.prisma.appointment.findFirst({
+      where: { date: timeSlot },
+    });
+
+    return !!prismaAppointmentFound;
   }
 }

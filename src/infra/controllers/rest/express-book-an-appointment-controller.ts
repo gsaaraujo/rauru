@@ -33,11 +33,7 @@ export class ExpressBookAnAppointmentController {
         date: z
           .string({ required_error: 'date is required', invalid_type_error: 'date must be string' })
           .trim()
-          .regex(/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/, { message: "date must be 'dd/mm/aaaa' format" }),
-        time: z
-          .string({ required_error: 'time is required', invalid_type_error: 'time must be string' })
-          .trim()
-          .regex(/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/, { message: "time must be 'hh:mm' (24h) format" }),
+          .nonempty({ message: 'date cannot be empty' }),
         creditCardToken: z
           .string({
             required_error: 'creditCardToken is required',
@@ -58,8 +54,7 @@ export class ExpressBookAnAppointmentController {
         doctorId: request.body.doctorId,
         patientId: request.body.patientId,
         price: request.body.price,
-        date: request.body.date,
-        time: request.body.time,
+        date: new Date(request.body.date),
         creditCardToken: request.body.creditCardToken,
       });
 

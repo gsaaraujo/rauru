@@ -3,7 +3,6 @@ import { BaseError } from '@shared/helpers/base-error';
 import { Either, left, right } from '@shared/helpers/either';
 
 import { Money } from '@domain/models/money';
-import { DateTime } from '@domain/models/date-time';
 import { AppointmentCannotBeInThePastError } from '@domain/errors/appointment-cannot-be-in-the-past-error';
 
 export enum AppointmentStatus {
@@ -14,7 +13,7 @@ export enum AppointmentStatus {
 export type AppointmentProps = {
   doctorId: string;
   patientId: string;
-  dateTime: DateTime;
+  date: Date;
   price: Money;
   creditCardToken: string;
   status: AppointmentStatus;
@@ -28,7 +27,7 @@ export class Appointment extends Entity<AppointmentProps> {
   public static create(props: Omit<AppointmentProps, 'status'>): Either<BaseError, Appointment> {
     const dateNow = new Date();
 
-    if (props.dateTime.dateTime.getTime() < dateNow.getTime()) {
+    if (props.date.getTime() < dateNow.getTime()) {
       const error = new AppointmentCannotBeInThePastError('The appointment cannot be booked in the past.');
       return left(error);
     }
@@ -52,8 +51,8 @@ export class Appointment extends Entity<AppointmentProps> {
     return this._props.patientId;
   }
 
-  get dateTime(): DateTime {
-    return this._props.dateTime;
+  get date(): Date {
+    return this._props.date;
   }
 
   get price(): Money {

@@ -4,7 +4,6 @@ import { Either } from '@shared/helpers/either';
 import { BaseError } from '@shared/helpers/base-error';
 
 import { Money } from '@domain/models/money';
-import { DateTime } from '@domain/models/date-time';
 import { Appointment, AppointmentStatus } from '@domain/models/appointment/appointment';
 import { AppointmentCannotBeInThePastError } from '@domain/errors/appointment-cannot-be-in-the-past-error';
 
@@ -16,7 +15,7 @@ describe('appointment', () => {
       status: AppointmentStatus.PENDING,
       price: Money.reconstitute({ amount: 0 }),
       creditCardToken: 'any',
-      dateTime: DateTime.reconstitute({ date: '18/08/2100', time: '08:00' }),
+      date: new Date('2100-08-18T08:00:00.000Z'),
     });
 
     const sut: Either<BaseError, Appointment> = Appointment.create({
@@ -24,7 +23,7 @@ describe('appointment', () => {
       patientId: 'any',
       price: Money.create({ amount: 0 }).value as Money,
       creditCardToken: 'any',
-      dateTime: DateTime.reconstitute({ date: '18/08/2100', time: '08:00' }),
+      date: new Date('2100-08-18T08:00:00.000Z'),
     });
 
     expect(sut.isRight()).toBeTruthy();
@@ -42,7 +41,7 @@ describe('appointment', () => {
       patientId: 'any',
       price: Money.create({ amount: 0 }).value as Money,
       creditCardToken: 'any',
-      dateTime: DateTime.create({ date: '18/08/2003', time: '08:00' }).value as DateTime,
+      date: new Date('2003-08-18T08:00:00.000Z'),
     });
 
     expect(sut.isLeft()).toBeTruthy();

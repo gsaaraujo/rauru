@@ -3,15 +3,13 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import { Either } from '@shared/helpers/either';
 import { BaseError } from '@shared/helpers/base-error';
 
-import { DateTime } from '@domain/models/date-time';
-import { Schedule } from '@domain/models/schedule/schedule';
-import { TimeSlot, TimeSlotStatus } from '@domain/models/time-slot';
+import { Money } from '@domain/models/money';
 import { BookAnAppointment } from '@domain/usecases/book-an-appointment';
 import { DoctorNotFoundError } from '@domain/errors/doctor-not-found-error';
 import { PatientNotFoundError } from '@domain/errors/patient-not-found-error';
 import { ScheduleNotFoundError } from '@domain/errors/schedule-not-found-error';
+import { DaysOfAvailability, Schedule } from '@domain/models/schedule/schedule';
 import { TimeSlotNotFoundError } from '@domain/errors/time-slot-not-found-error';
-import { TimeSlotAlreadyBookedError } from '@domain/errors/time-slot-already-booked-error';
 
 import { FakeQueueAdapter } from '@infra/adapters/queue/fake-queue-adapter';
 import { FakeDoctorGateway } from '@infra/gateways/doctor/fake-doctor-gateway';
@@ -51,12 +49,9 @@ describe('book-an-appointment', () => {
     fakeScheduleRepository.schedules = [
       Schedule.reconstitute('any', {
         doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
-        timeSlots: [
-          TimeSlot.reconstitute({
-            dateTime: DateTime.reconstitute({ date: '18/08/2100', time: '08:00' }),
-            status: TimeSlotStatus.AVAILABLE,
-          }),
-        ],
+        price: Money.reconstitute({ amount: 120 }),
+        daysOfAvailability: [DaysOfAvailability.MONDAY],
+        timeSlots: ['08:00'],
       }),
     ];
     fakeAppointmentRepository.appointments = [];
@@ -66,8 +61,7 @@ describe('book-an-appointment', () => {
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
       creditCardToken: 'any',
-      time: '08:00',
-      date: '18/08/2100',
+      date: new Date('2100-09-27T08:00:00.000Z'),
     });
 
     expect(sut.isRight()).toBeTruthy();
@@ -84,23 +78,20 @@ describe('book-an-appointment', () => {
     fakeScheduleRepository.schedules = [
       Schedule.reconstitute('any', {
         doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
-        timeSlots: [
-          TimeSlot.reconstitute({
-            dateTime: DateTime.reconstitute({ date: '18/08/2100', time: '08:00' }),
-            status: TimeSlotStatus.UNAVAILABLE,
-          }),
-        ],
+        timeSlots: [],
+        daysOfAvailability: [],
+        price: Money.reconstitute({ amount: 120 }),
       }),
     ];
-    const output: BaseError = new TimeSlotAlreadyBookedError('This time slot is already booked. Choose another one.');
+
+    const output: BaseError = new TimeSlotNotFoundError('The doctor has not defined a time slot for this date.');
 
     const sut: Either<BaseError, void> = await bookAnAppointment.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
       creditCardToken: 'any',
-      time: '08:00',
-      date: '18/08/2100',
+      date: new Date('2100-09-27T08:00:00.000Z'),
     });
 
     expect(sut.isLeft()).toBeTruthy();
@@ -116,6 +107,8 @@ describe('book-an-appointment', () => {
       Schedule.reconstitute('any', {
         doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
         timeSlots: [],
+        price: Money.reconstitute({ amount: 120 }),
+        daysOfAvailability: [DaysOfAvailability.FRIDAY],
       }),
     ];
     const output: BaseError = new TimeSlotNotFoundError('The doctor has not defined a time slot for this date.');
@@ -125,8 +118,7 @@ describe('book-an-appointment', () => {
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
       creditCardToken: 'any',
-      time: '08:00',
-      date: '18/08/2100',
+      date: new Date('2100-08-18T08:00:00.000Z'),
     });
 
     expect(sut.isLeft()).toBeTruthy();
@@ -143,8 +135,7 @@ describe('book-an-appointment', () => {
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
       creditCardToken: 'any',
-      time: '08:00',
-      date: '18/08/2100',
+      date: new Date('2100-08-18T08:00:00.000Z'),
     });
 
     expect(sut.isLeft()).toBeTruthy();
@@ -161,8 +152,7 @@ describe('book-an-appointment', () => {
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
       creditCardToken: 'any',
-      time: '08:00',
-      date: '18/08/2100',
+      date: new Date('2100-08-18T08:00:00.000Z'),
     });
 
     expect(sut.isLeft()).toBeTruthy();
@@ -179,8 +169,7 @@ describe('book-an-appointment', () => {
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
       creditCardToken: 'any',
-      time: '08:00',
-      date: '18/08/2100',
+      date: new Date('2100-08-18T08:00:00.000Z'),
     });
 
     expect(sut.isLeft()).toBeTruthy();

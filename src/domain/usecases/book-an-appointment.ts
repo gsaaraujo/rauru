@@ -16,15 +16,14 @@ import { TimeSlotAlreadyBookedError } from '@domain/errors/time-slot-already-boo
 import { QueueAdapter } from '@infra/adapters/queue/queue-adapter';
 import { DoctorGateway } from '@infra/gateways/doctor/doctor-gateway';
 import { PatientGateway } from '@infra/gateways/patient/patient-gateway';
-import { DateTime } from '@domain/models/date-time';
+import { TimeSlotNotFoundError } from '@domain/errors/time-slot-not-found-error';
 
 export type BookAnAppointmentInput = {
   doctorId: string;
   patientId: string;
+  date: Date;
   price: number;
   creditCardToken: string;
-  date: string;
-  time: string;
 };
 
 export type BookAnAppointmentOutput = void;
@@ -63,19 +62,14 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
       return left(error);
     }
 
-    const isTimeSlotAvailableOrError: Either<BaseError, boolean> = scheduleFound.isTimeSlotAvailable(
-      input.date,
-      input.time,
-    );
-
-    if (isTimeSlotAvailableOrError.isLeft()) {
-      const error: BaseError = isTimeSlotAvailableOrError.value;
+    if (!scheduleFound.hasTimeSlot(input.date)) {
+      const error: BaseError = new TimeSlotNotFoundError('The doctor has not defined a time slot for this date.');
       return left(error);
     }
 
-    const isTimeSlotAvailable: boolean = isTimeSlotAvailableOrError.value;
+    const isTimeSlotBookedAlready: boolean = await this.appointmentRepository.isTimeSlotBookedAlready(input.date);
 
-    if (!isTimeSlotAvailable) {
+    if (isTimeSlotBookedAlready) {
       const error = new TimeSlotAlreadyBookedError('This time slot is already booked. Choose another one.');
       return left(error);
     }
@@ -89,19 +83,10 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
 
     const money: Money = moneyOrError.value;
 
-    const dateTimeOrError: Either<BaseError, DateTime> = DateTime.create({ date: input.date, time: input.time });
-
-    if (dateTimeOrError.isLeft()) {
-      const error: BaseError = dateTimeOrError.value;
-      return left(error);
-    }
-
-    const dateTime: DateTime = dateTimeOrError.value;
-
     const appointmentOrError: Either<BaseError, Appointment> = Appointment.create({
       doctorId: input.doctorId,
       patientId: input.patientId,
-      dateTime,
+      date: input.date,
       price: money,
       creditCardToken: input.creditCardToken,
     });

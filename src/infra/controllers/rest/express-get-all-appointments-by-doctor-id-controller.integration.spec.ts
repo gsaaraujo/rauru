@@ -30,17 +30,11 @@ describe('express-get-all-appointments-by-doctor-id-controller', () => {
         data: {
           id: '821339f9-49de-4714-9fa4-db72dcb29eb5',
           doctorId: '6bf34422-622c-4c58-a751-4614980fce03',
+          price: 120,
+          timeSlots: ['13:15'],
+          daysOfAvailability: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'],
         },
       }),
-      prismaClient.timeSlot.create({
-        data: {
-          id: '99f46ea7-35db-47bb-94d7-9c5d02a978cc',
-          scheduleId: '821339f9-49de-4714-9fa4-db72dcb29eb5',
-          status: 'AVAILABLE',
-          date: new Date('2100-08-10T13:15:00.000Z'),
-        },
-      }),
-
       prismaClient.appointment.create({
         data: {
           id: 'be7b459c-b7e9-4a6a-8077-a2de3d2c8463',

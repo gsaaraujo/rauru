@@ -15,9 +15,14 @@ enum AppointmentStatus {
   CONFIRMED
 }
 
-enum TimeSlotStatus {
-  AVAILABLE
-  UNAVAILABLE
+enum DaysOfAvailability {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
 }
 
 model Patient {
@@ -56,26 +61,16 @@ model Appointment {
 }
 
 model Schedule {
-  id        String     @id @db.Uuid
-  doctor    Doctor     @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  doctorId  String     @map("doctor_id") @db.Uuid
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
-  TimeSlot  TimeSlot[]
+  id                 String               @id @db.Uuid
+  doctor             Doctor               @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  doctorId           String               @map("doctor_id") @db.Uuid
+  price              Float
+  timeSlots          String[]             @map("time_slots")
+  daysOfAvailability DaysOfAvailability[] @map("days_of_availability")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @default(now()) @updatedAt @map("updated_at")
 
   @@map("schedules")
-}
-
-model TimeSlot {
-  id         String         @id @db.Uuid
-  schedule   Schedule       @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  scheduleId String         @map("schedule_id") @db.Uuid
-  date       DateTime
-  status     TimeSlotStatus
-  createdAt  DateTime       @default(now()) @map("created_at")
-  updatedAt  DateTime       @default(now()) @updatedAt @map("updated_at")
-
-  @@map("time_slots")
 }
 
 model TokenizedPayment {

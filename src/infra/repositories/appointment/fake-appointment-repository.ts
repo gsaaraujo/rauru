@@ -12,4 +12,12 @@ export class FakeAppointmentRepository implements AppointmentRepository {
     const appointmentFound: Appointment | undefined = this.appointments.find((appointment) => appointment.id === id);
     return appointmentFound ?? null;
   }
+
+  public async isTimeSlotBookedAlready(timeSlot: Date): Promise<boolean> {
+    for (const appointment of this.appointments) {
+      if (appointment.date === timeSlot) return true;
+    }
+
+    return false;
+  }
 }
