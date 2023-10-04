@@ -32,6 +32,7 @@ export class ConfirmAnAppointment extends Usecase<ConfirmAnAppointmentInput, Con
     }
 
     appointment.confirmAppointment();
+    await this.appointmentRepository.update(appointment);
     const appointmentConfirmed = new AppointmentConfirmed(appointment.id);
     await this.queueAdapter.publish('AppointmentConfirmed', JSON.stringify(appointmentConfirmed));
     return right(undefined);

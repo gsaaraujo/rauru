@@ -13,6 +13,15 @@ export class FakeAppointmentRepository implements AppointmentRepository {
     return appointmentFound ?? null;
   }
 
+  public async update(updatedAppointment: Appointment): Promise<void> {
+    const appointments: Appointment[] = this.appointments.filter(
+      (appointment) => appointment.id !== updatedAppointment.id,
+    );
+
+    this.appointments = appointments;
+    this.appointments.push(updatedAppointment);
+  }
+
   public async isTimeSlotBookedAlready(timeSlot: Date): Promise<boolean> {
     for (const appointment of this.appointments) {
       if (appointment.date === timeSlot) return true;

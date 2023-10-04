@@ -25,18 +25,38 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
     });
   }
 
+  async update(appointment: Appointment): Promise<void> {
+    await this.prisma.appointment.update({
+      where: {
+        id: appointment.id,
+      },
+      data: {
+        id: appointment.id,
+        doctorId: appointment.doctorId,
+        patientId: appointment.patientId,
+        date: appointment.date,
+        status: appointment.status,
+        price: appointment.price.amount,
+      },
+    });
+  }
+
   public async findOneById(id: string): Promise<Appointment | null> {
     const prismaAppointmentFound: PrismaAppointment | null = await this.prisma.appointment.findUnique({
       where: { id },
     });
 
-    if (!prismaAppointmentFound) return null;
+    if (!prismaAppointmentFound) {
+      return null;
+    }
 
-    const tokenizedPaymentFound: PrismaTokenizedPayment | null = await this.prisma.tokenizedPayment.findUnique({
-      where: { id: prismaAppointmentFound.patientId },
+    const tokenizedPaymentFound: PrismaTokenizedPayment | null = await this.prisma.tokenizedPayment.findFirst({
+      where: { patientId: prismaAppointmentFound.patientId },
     });
 
-    if (!tokenizedPaymentFound) return null;
+    if (!tokenizedPaymentFound) {
+      return null;
+    }
 
     const toAppointmentStatus = {
       [PrismaAppointmentStatus.PENDING]: AppointmentStatus.PENDING,
