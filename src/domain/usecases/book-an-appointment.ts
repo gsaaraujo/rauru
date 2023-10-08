@@ -98,11 +98,7 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
 
     const appointment: Appointment = appointmentOrError.value;
     await this.appointmentRepository.create(appointment);
-    const appointmentBooked = new AppointmentBooked(
-      appointment.id,
-      appointment.price.amount,
-      appointment.creditCardToken,
-    );
+    const appointmentBooked = new AppointmentBooked(appointment.id);
     await this.queueAdapter.publish('AppointmentBooked', JSON.stringify(appointmentBooked));
     return right(undefined);
   }
