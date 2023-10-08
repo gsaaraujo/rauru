@@ -3,19 +3,22 @@ import { BaseError } from '@shared/helpers/base-error';
 import { Either, left, right } from '@shared/helpers/either';
 
 import { Appointment } from '@domain/models/appointment/appointment';
-import { AppointmentNotFoundError } from '@domain/errors/appointment-not-found-error';
+import { AppointmentConfirmed } from '@domain/events/appointment-confirmed';
 import { AppointmentRepository } from '@domain/models/appointment/appointment-repository';
 
-import { QueueAdapter } from '@infra/adapters/queue/queue-adapter';
-import { AppointmentConfirmed } from '@domain/events/appointment-confirmed';
+import { QueueAdapter } from '@application/adapters/queue-adapter';
+import { AppointmentNotFoundError } from '@application/errors/appointment-not-found-error';
 
-export type ConfirmAnAppointmentInput = {
+export type ConfirmAnAppointmentServiceInput = {
   appointmentId: string;
 };
 
-export type ConfirmAnAppointmentOutput = void;
+export type ConfirmAnAppointmentServiceOutput = void;
 
-export class ConfirmAnAppointment extends Usecase<ConfirmAnAppointmentInput, ConfirmAnAppointmentOutput> {
+export class ConfirmAnAppointmentService extends Usecase<
+  ConfirmAnAppointmentServiceInput,
+  ConfirmAnAppointmentServiceOutput
+> {
   public constructor(
     private readonly appointmentRepository: AppointmentRepository,
     private readonly queueAdapter: QueueAdapter,
@@ -23,7 +26,7 @@ export class ConfirmAnAppointment extends Usecase<ConfirmAnAppointmentInput, Con
     super();
   }
 
-  public async execute(input: ConfirmAnAppointmentInput): Promise<Either<BaseError, void>> {
+  public async execute(input: ConfirmAnAppointmentServiceInput): Promise<Either<BaseError, void>> {
     const appointment: Appointment | null = await this.appointmentRepository.findOneById(input.appointmentId);
 
     if (!appointment) {

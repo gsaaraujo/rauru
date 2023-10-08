@@ -10,7 +10,8 @@
       "@main/*": ["./src/main/*"],
       "@infra/*": ["./src/infra/*"],
       "@shared/*": ["./src/shared/*"],
-      "@domain/*": ["./src/domain/*"]
+      "@domain/*": ["./src/domain/*"],
+      "@application/*": ["./src/application/*"]
     }
   }
 }

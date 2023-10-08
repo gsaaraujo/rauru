@@ -1,17 +1,17 @@
 import { z } from 'zod';
 import { Request, Response } from 'express';
 
+import { Either } from '@shared/helpers/either';
 import { BaseError } from '@shared/helpers/base-error';
 
-import { DoctorGateway } from '@infra/gateways/doctor/doctor-gateway';
-import { DoctorNotFoundError } from '@infra/errors/doctor-not-found-error';
-import { AppointmentDTO, AppointmentGateway } from '@infra/gateways/appointment/appointment-gateway';
+import {
+  GetAllAppointmentsByDoctorIdService,
+  GetAllAppointmentsByDoctorIdServiceOutput,
+} from '@application/services/get-all-appointments-by-doctor-id-service';
+import { DoctorNotFoundError } from '@application/errors/doctor-not-found-error';
 
 export class ExpressGetAllAppointmentsByDoctorIdController {
-  public constructor(
-    private readonly appointmentGateway: AppointmentGateway,
-    private readonly doctorGateway: DoctorGateway,
-  ) {}
+  public constructor(private readonly getAllAppointmentsByDoctorIdService: GetAllAppointmentsByDoctorIdService) {}
 
   async handle(request: Request, response: Response): Promise<Response> {
     try {
@@ -29,18 +29,24 @@ export class ExpressGetAllAppointmentsByDoctorIdController {
         return response.status(400).send({ errors });
       }
 
-      const doctorExists: boolean = await this.doctorGateway.exists(request.params.doctorId);
+      const getAllAppointmentsByDoctorIdService: Either<BaseError, GetAllAppointmentsByDoctorIdServiceOutput[]> =
+        await this.getAllAppointmentsByDoctorIdService.execute({
+          doctorId: request.params.doctorId,
+        });
 
-      if (!doctorExists) {
-        const error: BaseError = new DoctorNotFoundError('No doctor was found.');
-        return response.status(404).send({ error: error.message });
+      if (getAllAppointmentsByDoctorIdService.isRight()) {
+        return response.status(200).send(getAllAppointmentsByDoctorIdService.value);
       }
 
-      const appointmentsDTO: AppointmentDTO[] = await this.appointmentGateway.findAllByDoctorId(
-        request.params.doctorId,
-      );
+      const baseError: BaseError = getAllAppointmentsByDoctorIdService.value;
 
-      return response.status(200).send(appointmentsDTO);
+      if (baseError instanceof DoctorNotFoundError) {
+        return response.status(404).send({ error: baseError.message });
+      }
+
+      return response.status(500).send({
+        errorMessage: 'Something unexpected happened',
+      });
     } catch (error) {
       return response.status(500).send({
         errorMessage: 'Something unexpected happened',

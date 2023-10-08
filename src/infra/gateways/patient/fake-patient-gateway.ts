@@ -1,4 +1,4 @@
-import { PatientGateway, PatientGatewayDTO } from '@infra/gateways/patient/patient-gateway';
+import { PatientGateway, PatientGatewayDTO } from '@application/gateways/patient-gateway';
 
 export class FakePatientGateway implements PatientGateway {
   public patients: PatientGatewayDTO[] = [];

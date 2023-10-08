@@ -4,12 +4,13 @@ import { Either } from '@shared/helpers/either';
 import { BaseError } from '@shared/helpers/base-error';
 
 import { Money } from '@domain/models/money';
-import { BookAnAppointment } from '@domain/usecases/book-an-appointment';
-import { DoctorNotFoundError } from '@domain/errors/doctor-not-found-error';
-import { PatientNotFoundError } from '@domain/errors/patient-not-found-error';
-import { ScheduleNotFoundError } from '@domain/errors/schedule-not-found-error';
 import { DaysOfAvailability, Schedule } from '@domain/models/schedule/schedule';
-import { TimeSlotNotFoundError } from '@domain/errors/time-slot-not-found-error';
+
+import { DoctorNotFoundError } from '@application/errors/doctor-not-found-error';
+import { PatientNotFoundError } from '@application/errors/patient-not-found-error';
+import { ScheduleNotFoundError } from '@application/errors/schedule-not-found-error';
+import { TimeSlotNotFoundError } from '@application/errors/time-slot-not-found-error';
+import { BookAnAppointmentService } from '@application/services/book-an-appointment-service';
 
 import { FakeQueueAdapter } from '@infra/adapters/queue/fake-queue-adapter';
 import { FakeDoctorGateway } from '@infra/gateways/doctor/fake-doctor-gateway';
@@ -18,7 +19,7 @@ import { FakeScheduleRepository } from '@infra/repositories/schedule/fake-schedu
 import { FakeAppointmentRepository } from '@infra/repositories/appointment/fake-appointment-repository';
 
 describe('book-an-appointment', () => {
-  let bookAnAppointment: BookAnAppointment;
+  let bookAnAppointmentService: BookAnAppointmentService;
   let fakeScheduleRepository: FakeScheduleRepository;
   let fakeAppointmentRepository: FakeAppointmentRepository;
   let fakeDoctorGateway: FakeDoctorGateway;
@@ -31,7 +32,7 @@ describe('book-an-appointment', () => {
     fakePatientGateway = new FakePatientGateway();
     fakeScheduleRepository = new FakeScheduleRepository();
     fakeAppointmentRepository = new FakeAppointmentRepository();
-    bookAnAppointment = new BookAnAppointment(
+    bookAnAppointmentService = new BookAnAppointmentService(
       fakeScheduleRepository,
       fakeAppointmentRepository,
       fakeDoctorGateway,
@@ -56,7 +57,7 @@ describe('book-an-appointment', () => {
     ];
     fakeAppointmentRepository.appointments = [];
 
-    const sut: Either<BaseError, void> = await bookAnAppointment.execute({
+    const sut: Either<BaseError, void> = await bookAnAppointmentService.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
@@ -86,7 +87,7 @@ describe('book-an-appointment', () => {
 
     const output: BaseError = new TimeSlotNotFoundError('The doctor has not defined a time slot for this date.');
 
-    const sut: Either<BaseError, void> = await bookAnAppointment.execute({
+    const sut: Either<BaseError, void> = await bookAnAppointmentService.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
@@ -113,7 +114,7 @@ describe('book-an-appointment', () => {
     ];
     const output: BaseError = new TimeSlotNotFoundError('The doctor has not defined a time slot for this date.');
 
-    const sut: Either<BaseError, void> = await bookAnAppointment.execute({
+    const sut: Either<BaseError, void> = await bookAnAppointmentService.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
@@ -130,7 +131,7 @@ describe('book-an-appointment', () => {
     fakePatientGateway.patients = [{ id: '9ea8f5df-a906-4852-940b-9cb28784eb62' }];
     const error: BaseError = new ScheduleNotFoundError('No schedule was found for this doctor.');
 
-    const sut: Either<BaseError, void> = await bookAnAppointment.execute({
+    const sut: Either<BaseError, void> = await bookAnAppointmentService.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
@@ -147,7 +148,7 @@ describe('book-an-appointment', () => {
     fakePatientGateway.patients = [];
     const error: BaseError = new PatientNotFoundError('No patient was found.');
 
-    const sut: Either<BaseError, void> = await bookAnAppointment.execute({
+    const sut: Either<BaseError, void> = await bookAnAppointmentService.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,
@@ -164,7 +165,7 @@ describe('book-an-appointment', () => {
     fakePatientGateway.patients = [{ id: '9ea8f5df-a906-4852-940b-9cb28784eb62' }];
     const error: BaseError = new DoctorNotFoundError('No doctor was found.');
 
-    const sut: Either<BaseError, void> = await bookAnAppointment.execute({
+    const sut: Either<BaseError, void> = await bookAnAppointmentService.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
       patientId: '9ea8f5df-a906-4852-940b-9cb28784eb62',
       price: 140,

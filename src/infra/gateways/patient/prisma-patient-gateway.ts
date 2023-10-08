@@ -1,6 +1,6 @@
 import { Patient as PrismaPatient, PrismaClient } from '@prisma/client';
 
-import { PatientGateway } from '@infra/gateways/patient/patient-gateway';
+import { PatientGateway } from '@application/gateways/patient-gateway';
 
 export class PrismaPatientGateway implements PatientGateway {
   public constructor(private readonly prisma: PrismaClient) {}

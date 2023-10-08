@@ -4,19 +4,20 @@ import { Request, Response } from 'express';
 import { Either } from '@shared/helpers/either';
 import { BaseError } from '@shared/helpers/base-error';
 
-import { BookAnAppointment } from '@domain/usecases/book-an-appointment';
-import { DoctorNotFoundError } from '@domain/errors/doctor-not-found-error';
-import { PatientNotFoundError } from '@domain/errors/patient-not-found-error';
-import { ScheduleNotFoundError } from '@domain/errors/schedule-not-found-error';
 import { TimeSlotNotFoundError } from '@domain/errors/time-slot-not-found-error';
-import { AppointmentNotFoundError } from '@domain/errors/appointment-not-found-error';
-import { TimeSlotAlreadyBookedError } from '@domain/errors/time-slot-already-booked-error';
 import { MoneyCannotBeNegativeError } from '@domain/errors/money-cannot-be-negative-error';
+import { BookAnAppointmentService } from '@application/services/book-an-appointment-service';
 import { TimeSlotCannotBeInThePastError } from '@domain/errors/time-slot-cannot-be-in-the-past-error';
 import { AppointmentCannotBeInThePastError } from '@domain/errors/appointment-cannot-be-in-the-past-error';
 
+import { DoctorNotFoundError } from '@application/errors/doctor-not-found-error';
+import { PatientNotFoundError } from '@application/errors/patient-not-found-error';
+import { ScheduleNotFoundError } from '@application/errors/schedule-not-found-error';
+import { AppointmentNotFoundError } from '@application/errors/appointment-not-found-error';
+import { TimeSlotAlreadyBookedError } from '@application/errors/time-slot-already-booked-error';
+
 export class ExpressBookAnAppointmentController {
-  constructor(private readonly bookAnAppointment: BookAnAppointment) {}
+  constructor(private readonly bookAnAppointmentService: BookAnAppointmentService) {}
 
   async handle(request: Request, response: Response): Promise<Response> {
     try {
@@ -50,7 +51,7 @@ export class ExpressBookAnAppointmentController {
         return response.status(400).send({ errors });
       }
 
-      const bookAnAppointmentOrError: Either<BaseError, void> = await this.bookAnAppointment.execute({
+      const bookAnAppointmentOrError: Either<BaseError, void> = await this.bookAnAppointmentService.execute({
         doctorId: request.body.doctorId,
         patientId: request.body.patientId,
         price: request.body.price,

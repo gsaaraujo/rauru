@@ -6,19 +6,19 @@ import { Money } from '@domain/models/money';
 import { Schedule } from '@domain/models/schedule/schedule';
 import { Appointment } from '@domain/models/appointment/appointment';
 import { AppointmentBooked } from '@domain/events/appointment-booked';
-import { DoctorNotFoundError } from '@domain/errors/doctor-not-found-error';
-import { PatientNotFoundError } from '@domain/errors/patient-not-found-error';
-import { ScheduleNotFoundError } from '@domain/errors/schedule-not-found-error';
 import { ScheduleRepository } from '@domain/models/schedule/schedule-repository';
 import { AppointmentRepository } from '@domain/models/appointment/appointment-repository';
-import { TimeSlotAlreadyBookedError } from '@domain/errors/time-slot-already-booked-error';
 
-import { QueueAdapter } from '@infra/adapters/queue/queue-adapter';
-import { DoctorGateway } from '@infra/gateways/doctor/doctor-gateway';
-import { PatientGateway } from '@infra/gateways/patient/patient-gateway';
-import { TimeSlotNotFoundError } from '@domain/errors/time-slot-not-found-error';
+import { QueueAdapter } from '@application/adapters/queue-adapter';
+import { DoctorGateway } from '@application/gateways/doctor-gateway';
+import { PatientGateway } from '@application/gateways/patient-gateway';
+import { DoctorNotFoundError } from '@application/errors/doctor-not-found-error';
+import { PatientNotFoundError } from '@application/errors/patient-not-found-error';
+import { ScheduleNotFoundError } from '@application/errors/schedule-not-found-error';
+import { TimeSlotNotFoundError } from '@application/errors/time-slot-not-found-error';
+import { TimeSlotAlreadyBookedError } from '@application/errors/time-slot-already-booked-error';
 
-export type BookAnAppointmentInput = {
+export type BookAnAppointmentServiceInput = {
   doctorId: string;
   patientId: string;
   date: Date;
@@ -26,9 +26,9 @@ export type BookAnAppointmentInput = {
   creditCardToken: string;
 };
 
-export type BookAnAppointmentOutput = void;
+export type BookAnAppointmentServiceOutput = void;
 
-export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnAppointmentOutput> {
+export class BookAnAppointmentService extends Usecase<BookAnAppointmentServiceInput, BookAnAppointmentServiceOutput> {
   public constructor(
     private readonly scheduleRepository: ScheduleRepository,
     private readonly appointmentRepository: AppointmentRepository,
@@ -39,7 +39,7 @@ export class BookAnAppointment extends Usecase<BookAnAppointmentInput, BookAnApp
     super();
   }
 
-  public async execute(input: BookAnAppointmentInput): Promise<Either<BaseError, void>> {
+  public async execute(input: BookAnAppointmentServiceInput): Promise<Either<BaseError, void>> {
     const [doctorExists, patientExists] = await Promise.all([
       this.doctorGateway.exists(input.doctorId),
       this.patientGateway.exists(input.patientId),

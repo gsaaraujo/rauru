@@ -1,6 +1,6 @@
 import amqplib from 'amqplib';
 
-import { QueueAdapter } from '@infra/adapters/queue/queue-adapter';
+import { QueueAdapter } from '@application/adapters/queue-adapter';
 
 export class RabbitMQqueueAdapter implements QueueAdapter {
   public constructor(private readonly channel: amqplib.Channel) {}

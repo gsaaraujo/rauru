@@ -1,4 +1,4 @@
-import { QueueAdapter } from '@infra/adapters/queue/queue-adapter';
+import { QueueAdapter } from '@application/adapters/queue-adapter';
 
 export type FakeMessageDTO = {
   name: string;

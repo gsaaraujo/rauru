@@ -4,22 +4,23 @@ import { Either } from '@shared/helpers/either';
 import { BaseError } from '@shared/helpers/base-error';
 
 import { Money } from '@domain/models/money';
-import { ConfirmAnAppointment } from '@domain/usecases/confirm-an-appointment';
-import { AppointmentNotFoundError } from '@domain/errors/appointment-not-found-error';
 import { Appointment, AppointmentStatus } from '@domain/models/appointment/appointment';
+
+import { AppointmentNotFoundError } from '@application/errors/appointment-not-found-error';
+import { ConfirmAnAppointmentService } from '@application/services/confirm-an-appointment-service';
 
 import { FakeQueueAdapter } from '@infra/adapters/queue/fake-queue-adapter';
 import { FakeAppointmentRepository } from '@infra/repositories/appointment/fake-appointment-repository';
 
 describe('confirm-an-appointment', () => {
-  let confirmAnAppointment: ConfirmAnAppointment;
+  let confirmAnAppointmentService: ConfirmAnAppointmentService;
   let fakeAppointmentRepository: FakeAppointmentRepository;
   let fakeQueueAdapter: FakeQueueAdapter;
 
   beforeEach(() => {
     fakeQueueAdapter = new FakeQueueAdapter();
     fakeAppointmentRepository = new FakeAppointmentRepository();
-    confirmAnAppointment = new ConfirmAnAppointment(fakeAppointmentRepository, fakeQueueAdapter);
+    confirmAnAppointmentService = new ConfirmAnAppointmentService(fakeAppointmentRepository, fakeQueueAdapter);
   });
 
   it(`given the patient has booked an appointment
@@ -37,7 +38,7 @@ describe('confirm-an-appointment', () => {
     ];
     fakeQueueAdapter.messages = [];
 
-    const sut: Either<BaseError, void> = await confirmAnAppointment.execute({
+    const sut: Either<BaseError, void> = await confirmAnAppointmentService.execute({
       appointmentId: 'a176041a-fffb-45d2-a485-b386071e5cb1',
     });
 
@@ -52,7 +53,7 @@ describe('confirm-an-appointment', () => {
     fakeAppointmentRepository.appointments = [];
     const output = new AppointmentNotFoundError('Appointment not found.');
 
-    const sut: Either<BaseError, void> = await confirmAnAppointment.execute({
+    const sut: Either<BaseError, void> = await confirmAnAppointmentService.execute({
       appointmentId: 'any',
     });
 
