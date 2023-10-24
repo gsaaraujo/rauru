@@ -25,31 +25,9 @@ enum DaysOfAvailability {
   SATURDAY
 }
 
-model Patient {
-  id               String             @id @db.Uuid
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @default(now()) @updatedAt @map("updated_at")
-  Appointment      Appointment[]
-  TokenizedPayment TokenizedPayment[]
-
-  @@map("patients")
-}
-
-model Doctor {
-  id          String        @id @db.Uuid
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
-  Appointment Appointment[]
-  Schedule    Schedule[]
-
-  @@map("doctors")
-}
-
 model Appointment {
   id        String            @id @db.Uuid
-  doctor    Doctor            @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   doctorId  String            @map("doctor_id") @db.Uuid
-  patient   Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
   patientId String            @map("patient_id") @db.Uuid
   date      DateTime
   price     Float
@@ -62,7 +40,6 @@ model Appointment {
 
 model Schedule {
   id                 String               @id @db.Uuid
-  doctor             Doctor               @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   doctorId           String               @map("doctor_id") @db.Uuid
   price              Float
   timeSlots          String[]             @map("time_slots")
@@ -71,15 +48,4 @@ model Schedule {
   updatedAt          DateTime             @default(now()) @updatedAt @map("updated_at")
 
   @@map("schedules")
-}
-
-model TokenizedPayment {
-  id              String   @id @db.Uuid
-  patient         Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  patientId       String   @map("patient_id") @db.Uuid
-  creditCardToken String   @map("credit_card_token")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
-
-  @@map("tokenized_payments")
 }

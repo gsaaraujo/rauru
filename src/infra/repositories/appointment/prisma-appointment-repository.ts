@@ -2,7 +2,6 @@ import {
   PrismaClient,
   Appointment as PrismaAppointment,
   AppointmentStatus as PrismaAppointmentStatus,
-  TokenizedPayment as PrismaTokenizedPayment,
 } from '@prisma/client/edge';
 
 import { Money } from '@domain/models/money';
@@ -50,14 +49,6 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
       return null;
     }
 
-    const tokenizedPaymentFound: PrismaTokenizedPayment | null = await this.prisma.tokenizedPayment.findFirst({
-      where: { patientId: prismaAppointmentFound.patientId },
-    });
-
-    if (!tokenizedPaymentFound) {
-      return null;
-    }
-
     const toAppointmentStatus = {
       [PrismaAppointmentStatus.PENDING]: AppointmentStatus.PENDING,
       [PrismaAppointmentStatus.CONFIRMED]: AppointmentStatus.CONFIRMED,
@@ -67,7 +58,7 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
       doctorId: prismaAppointmentFound.doctorId,
       patientId: prismaAppointmentFound.patientId,
       date: prismaAppointmentFound.date,
-      creditCardToken: tokenizedPaymentFound.creditCardToken,
+      creditCardToken: '',
       status: toAppointmentStatus[prismaAppointmentFound.status],
       price: Money.reconstitute({ amount: prismaAppointmentFound.price }),
     });
