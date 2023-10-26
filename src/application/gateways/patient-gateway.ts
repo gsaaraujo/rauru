@@ -4,4 +4,5 @@ export type PatientGatewayDTO = {
 
 export interface PatientGateway {
   exists(id: string): Promise<boolean>;
+  findOneById(id: string): Promise<PatientGatewayDTO | null>;
 }
