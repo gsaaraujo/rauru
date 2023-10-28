@@ -66,18 +66,18 @@ const start = async () => {
 
   await rabbitmqConfirmAnAppointmentController.handle();
 
-  router.get('/get-all-appointments-by-doctor-id/:doctorId', (request: Request, response: Response) => {
+  router.get('/doctors/:doctorId/appointments', (request: Request, response: Response) => {
     return expressGetAllAppointmentsByDoctorIdController.handle(request, response);
   });
 
-  router.post('/book-an-appointment', async (request: Request, response: Response) => {
+  router.post('/appointment', async (request: Request, response: Response) => {
     return expressBookAnAppointmentController.handle(request, response);
   });
 
   app.use(router);
 
-  app.listen(3000, () => {
-    console.log(`Listening on port ${3000}`);
+  app.listen(process.env.API_BASE_PORT, () => {
+    console.log(`Listening on port ${process.env.API_BASE_PORT}`);
   });
 };
 
