@@ -66,12 +66,12 @@ const start = async () => {
 
   await rabbitmqConfirmAnAppointmentController.handle();
 
-  router.get('/doctors/:doctorId/appointments', (request: Request, response: Response) => {
-    return expressGetAllAppointmentsByDoctorIdController.handle(request, response);
+  router.post('/appointments', async (request: Request, response: Response) => {
+    return expressBookAnAppointmentController.handle(request, response);
   });
 
-  router.post('/appointment', async (request: Request, response: Response) => {
-    return expressBookAnAppointmentController.handle(request, response);
+  router.get('/doctors/:doctorId/appointments', (request: Request, response: Response) => {
+    return expressGetAllAppointmentsByDoctorIdController.handle(request, response);
   });
 
   app.use(router);

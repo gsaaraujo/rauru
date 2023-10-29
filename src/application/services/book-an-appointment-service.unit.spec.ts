@@ -9,7 +9,7 @@ import { DaysOfAvailability, Schedule } from '@domain/models/schedule/schedule';
 import { DoctorNotFoundError } from '@application/errors/doctor-not-found-error';
 import { PatientNotFoundError } from '@application/errors/patient-not-found-error';
 import { ScheduleNotFoundError } from '@application/errors/schedule-not-found-error';
-import { TimeSlotNotFoundError } from '@application/errors/time-slot-not-found-error';
+import { TimeSlotNotDefinedError } from '@application/errors/time-slot-not-defined-error';
 import { BookAnAppointmentService } from '@application/services/book-an-appointment-service';
 
 import { FakeQueueAdapter } from '@infra/adapters/queue/fake-queue-adapter';
@@ -85,7 +85,7 @@ describe('book-an-appointment', () => {
       }),
     ];
 
-    const output: BaseError = new TimeSlotNotFoundError('The doctor has not defined a time slot for this date.');
+    const output: BaseError = new TimeSlotNotDefinedError('The doctor has not defined a time slot for this date.');
 
     const sut: Either<BaseError, void> = await bookAnAppointmentService.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',
@@ -112,7 +112,7 @@ describe('book-an-appointment', () => {
         daysOfAvailability: [DaysOfAvailability.FRIDAY],
       }),
     ];
-    const output: BaseError = new TimeSlotNotFoundError('The doctor has not defined a time slot for this date.');
+    const output: BaseError = new TimeSlotNotDefinedError('The doctor has not defined a time slot for this date.');
 
     const sut: Either<BaseError, void> = await bookAnAppointmentService.execute({
       doctorId: 'f5705c67-4c74-4cea-a993-9fa1c56164b6',

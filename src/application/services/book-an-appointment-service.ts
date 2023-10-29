@@ -15,7 +15,7 @@ import { PatientGateway } from '@application/gateways/patient-gateway';
 import { DoctorNotFoundError } from '@application/errors/doctor-not-found-error';
 import { PatientNotFoundError } from '@application/errors/patient-not-found-error';
 import { ScheduleNotFoundError } from '@application/errors/schedule-not-found-error';
-import { TimeSlotNotFoundError } from '@application/errors/time-slot-not-found-error';
+import { TimeSlotNotDefinedError } from '@application/errors/time-slot-not-defined-error';
 import { TimeSlotAlreadyBookedError } from '@application/errors/time-slot-already-booked-error';
 
 export type BookAnAppointmentServiceInput = {
@@ -63,7 +63,7 @@ export class BookAnAppointmentService extends Usecase<BookAnAppointmentServiceIn
     }
 
     if (!scheduleFound.hasTimeSlot(input.date)) {
-      const error: BaseError = new TimeSlotNotFoundError('The doctor has not defined a time slot for this date.');
+      const error: BaseError = new TimeSlotNotDefinedError('The doctor has not defined a time slot for this date.');
       return left(error);
     }
 
