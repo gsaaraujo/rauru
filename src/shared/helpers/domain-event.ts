@@ -1,9 +1,17 @@
 export abstract class DomainEvent {
-  public readonly aggregateId: string;
-  public readonly dateTimeOccurred: Date;
+  private readonly aggregateId: string;
+  private readonly dateTimeOccurred: Date;
 
   public constructor(aggregateId: string) {
     this.aggregateId = aggregateId;
     this.dateTimeOccurred = new Date();
+  }
+
+  get getAggregateId(): string {
+    return this.aggregateId;
+  }
+
+  get getDateTimeOccurred(): Date {
+    return this.dateTimeOccurred;
   }
 }

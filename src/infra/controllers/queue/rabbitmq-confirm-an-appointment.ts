@@ -14,23 +14,27 @@ export class RabbitmqConfirmAnAppointmentController {
 
   public async handle(): Promise<void> {
     await this.queueAdapter.subscribe('PaymentApproved', async (rawData) => {
-      const data = JSON.parse(rawData);
+      try {
+        const data = JSON.parse(rawData);
 
-      if (data.paymentId === undefined) {
+        if (data.paymentId === undefined) {
+          return false;
+        }
+
+        const paymentGatewayDTO: PaymentGatewayDTO | null = await this.paymentGateway.findOneById(data.paymentId);
+
+        if (paymentGatewayDTO === null) {
+          return false;
+        }
+
+        const confirmAnAppointmentService: Either<BaseError, void> = await this.confirmAnAppointmentService.execute({
+          appointmentId: paymentGatewayDTO.appointmentId,
+        });
+
+        return confirmAnAppointmentService.isRight();
+      } catch (error) {
         return false;
       }
-
-      const paymentGatewayDTO: PaymentGatewayDTO | null = await this.paymentGateway.findOneById(data.paymentId);
-
-      if (paymentGatewayDTO === null) {
-        return false;
-      }
-
-      const confirmAnAppointmentService: Either<BaseError, void> = await this.confirmAnAppointmentService.execute({
-        appointmentId: paymentGatewayDTO.appointmentId,
-      });
-
-      return confirmAnAppointmentService.isRight();
     });
   }
 }

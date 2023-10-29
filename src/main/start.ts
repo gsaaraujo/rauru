@@ -17,6 +17,10 @@ import { PrismaAppointmentRepository } from '@infra/repositories/appointment/pri
 import { RabbitmqConfirmAnAppointmentController } from '@infra/controllers/queue/rabbitmq-confirm-an-appointment';
 import { ExpressBookAnAppointmentController } from '@infra/controllers/rest/express-book-an-appointment-controller';
 import { ExpressGetAllAppointmentsByDoctorIdController } from '@infra/controllers/rest/express-get-all-appointments-by-doctor-id-controller';
+import { ExpressGetOneAppointmentByIdController } from '@infra/controllers/rest/express-get-one-appointment-by-id-controller';
+import { GetOneAppointmentByIdService } from '@application/services/get-one-appointment-by-id-service';
+import { DoesAppointmentExistByIdService } from '@application/services/does-appointment-exist-by-id-service';
+import { ExpressDoesAppointmentExistByIdController } from '@infra/controllers/rest/express-does-appointment-exists-by-id-controller';
 
 const start = async () => {
   const app = express();
@@ -41,7 +45,9 @@ const start = async () => {
   const httpPaymentGateway = new HttpPaymentGateway(axiosHttpAdapter);
   const prismaAppointmentGateway = new PrismaAppointmentGateway(prismaClient);
 
-  const confirmAnAppointment = new ConfirmAnAppointmentService(appointmentRepository, rabbitMQqueueAdapter);
+  const confirmAnAppointmentService = new ConfirmAnAppointmentService(appointmentRepository, rabbitMQqueueAdapter);
+  const getOneAppointmentByIdService = new GetOneAppointmentByIdService(prismaAppointmentGateway);
+  const doesAppointmentExistByIdService = new DoesAppointmentExistByIdService(prismaAppointmentGateway);
   const getAllAppointmentsByDoctorIdService = new GetAllAppointmentsByDoctorIdService(
     prismaAppointmentGateway,
     httpPatientGateway,
@@ -55,11 +61,17 @@ const start = async () => {
   );
 
   const expressBookAnAppointmentController = new ExpressBookAnAppointmentController(bookAnAppointmentService);
+  const expressGetOneAppointmentByIdController = new ExpressGetOneAppointmentByIdController(
+    getOneAppointmentByIdService,
+  );
+  const expressDoesAppointmentExistByIdController = new ExpressDoesAppointmentExistByIdController(
+    doesAppointmentExistByIdService,
+  );
   const expressGetAllAppointmentsByDoctorIdController = new ExpressGetAllAppointmentsByDoctorIdController(
     getAllAppointmentsByDoctorIdService,
   );
   const rabbitmqConfirmAnAppointmentController = new RabbitmqConfirmAnAppointmentController(
-    confirmAnAppointment,
+    confirmAnAppointmentService,
     httpPaymentGateway,
     rabbitMQqueueAdapter,
   );
@@ -70,8 +82,16 @@ const start = async () => {
     return expressBookAnAppointmentController.handle(request, response);
   });
 
-  router.get('/doctors/:doctorId/appointments', (request: Request, response: Response) => {
+  router.get('/doctors/:id/appointments', (request: Request, response: Response) => {
     return expressGetAllAppointmentsByDoctorIdController.handle(request, response);
+  });
+
+  router.get('/appointments/:id', (request: Request, response: Response) => {
+    return expressGetOneAppointmentByIdController.handle(request, response);
+  });
+
+  router.get('/appointments/:id/exists', (request: Request, response: Response) => {
+    return expressDoesAppointmentExistByIdController.handle(request, response);
   });
 
   app.use(router);

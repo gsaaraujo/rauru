@@ -14,18 +14,14 @@ export class HttpDoctorGateway implements DoctorGateway {
   public constructor(private readonly httpAdapter: HttpAdapter) {}
 
   async exists(id: string): Promise<boolean> {
-    try {
-      const response: Doctor | Error = await this.httpAdapter.get<Doctor | Error>(
-        `http://localhost:3002/doctors/${id}/exists`,
-      );
+    const response: Doctor | Error = await this.httpAdapter.get<Doctor | Error>(
+      `http://localhost:3002/doctors/${id}/exists`,
+    );
 
-      if ('error' in response) {
-        return false;
-      }
-
-      return true;
-    } catch (error) {
+    if ('error' in response) {
       return false;
     }
+
+    return true;
   }
 }

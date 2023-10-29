@@ -13,6 +13,7 @@ import { AppointmentCannotBeInThePastError } from '@domain/errors/appointment-ca
 import { DoctorNotFoundError } from '@application/errors/doctor-not-found-error';
 import { PatientNotFoundError } from '@application/errors/patient-not-found-error';
 import { ScheduleNotFoundError } from '@application/errors/schedule-not-found-error';
+import { TimeSlotNotDefinedError } from '@application/errors/time-slot-not-defined-error';
 import { AppointmentNotFoundError } from '@application/errors/appointment-not-found-error';
 import { TimeSlotAlreadyBookedError } from '@application/errors/time-slot-already-booked-error';
 
@@ -74,7 +75,8 @@ export class ExpressBookAnAppointmentController {
         baseError instanceof ScheduleNotFoundError ||
         baseError instanceof TimeSlotAlreadyBookedError ||
         baseError instanceof TimeSlotCannotBeInThePastError ||
-        baseError instanceof TimeSlotNotFoundError
+        baseError instanceof TimeSlotNotFoundError ||
+        baseError instanceof TimeSlotNotDefinedError
       ) {
         return response.status(409).send({ error: baseError.message });
       }

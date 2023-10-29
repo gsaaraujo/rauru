@@ -99,7 +99,13 @@ export class BookAnAppointmentService extends Usecase<BookAnAppointmentServiceIn
     const appointment: Appointment = appointmentOrError.value;
     await this.appointmentRepository.create(appointment);
     const appointmentBooked = new AppointmentBooked(appointment.id);
-    await this.queueAdapter.publish('AppointmentBooked', JSON.stringify(appointmentBooked));
+    await this.queueAdapter.publish(
+      'AppointmentBooked',
+      JSON.stringify({
+        appointmentId: appointmentBooked.getAggregateId,
+        dateTimeOccurred: appointmentBooked.getDateTimeOccurred,
+      }),
+    );
     return right(undefined);
   }
 }

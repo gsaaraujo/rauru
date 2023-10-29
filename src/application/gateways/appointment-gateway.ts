@@ -8,5 +8,7 @@ export type AppointmentDTO = {
 };
 
 export interface AppointmentGateway {
+  existsById(id: string): Promise<boolean>;
+  findOneById(id: string): Promise<AppointmentDTO | null>;
   findAllByDoctorId(doctorId: string): Promise<AppointmentDTO[]>;
 }
