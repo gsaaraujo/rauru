@@ -47,10 +47,6 @@ export class ExpressDoesAppointmentExistByIdController {
       return response.status(500).send({
         errorMessage: 'Something unexpected happened',
       });
-
-      return response.status(500).send({
-        errorMessage: 'Something unexpected happened',
-      });
     } catch (error) {
       return response.status(500).send({
         errorMessage: 'Something unexpected happened',

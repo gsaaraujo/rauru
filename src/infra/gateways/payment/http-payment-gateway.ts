@@ -15,7 +15,9 @@ export class HttpPaymentGateway implements PaymentGateway {
   public constructor(private readonly httpAdapter: HttpAdapter) {}
 
   async findOneById(id: string): Promise<PaymentGatewayDTO | null> {
-    const payment: Payment | Error = await this.httpAdapter.get<Payment | Error>(`http://xpto.com/api/payments/${id}`);
+    const payment: Payment | Error = await this.httpAdapter.get<Payment | Error>(
+      `http://localhost:3001/payments/${id}`,
+    );
 
     if ('error' in payment) {
       return null;
