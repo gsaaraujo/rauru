@@ -36,7 +36,7 @@ describe('express-does-appointment-exists-by-id-controller', () => {
   it('should succeed and return false if appointment does not exist', async () => {
     const sut = await request('http://localhost:3000').get('/appointments/667c7aa3-1929-4fb3-a1ae-0535d42396de/exists');
 
-    expect(sut.status).toBe(200);
-    expect(sut.body).toStrictEqual({ appointmentExists: false });
+    expect(sut.status).toBe(404);
+    expect(sut.body).toStrictEqual({ error: 'Appointment not found.' });
   });
 });

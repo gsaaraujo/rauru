@@ -5,6 +5,7 @@ import { DoesAppointmentExistByIdService } from '@application/services/does-appo
 import { FakeAppointmentGateway } from '@infra/gateways/appointment/fake-appointment-gateway';
 import { BaseError } from '@shared/helpers/base-error';
 import { Either } from '@shared/helpers/either';
+import { AppointmentNotFoundError } from '@application/errors/appointment-not-found-error';
 
 describe('does-appointment-exist-by-id-service', () => {
   let fakeAppointmentGateway: FakeAppointmentGateway;
@@ -35,14 +36,15 @@ describe('does-appointment-exist-by-id-service', () => {
     expect(sut.value).toBeTruthy();
   });
 
-  it('should return false if appointment does not exist', async () => {
+  it('should return error if appointment does not exist', async () => {
+    const output = new AppointmentNotFoundError('Appointment not found.');
     fakeAppointmentGateway.appointmentsDTO = [];
 
     const sut: Either<BaseError, boolean> = await doesAppointmentExistByIdService.execute({
       id: 'a2845b93-b0e5-4484-8872-1a9369c163e1',
     });
 
-    expect(sut.isRight()).toBeTruthy();
-    expect(sut.value).toBeFalsy();
+    expect(sut.isLeft()).toBeTruthy();
+    expect(sut.value).toStrictEqual(output);
   });
 });
