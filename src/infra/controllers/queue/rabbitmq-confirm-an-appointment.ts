@@ -13,7 +13,7 @@ export class RabbitmqConfirmAnAppointmentController {
   ) {}
 
   public async handle(): Promise<void> {
-    await this.queueAdapter.subscribe('PaymentApproved', async (rawData) => {
+    await this.queueAdapter.subscribe('PaymentProcessed', async (rawData) => {
       try {
         const data = JSON.parse(rawData);
 
